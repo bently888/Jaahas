@@ -10,6 +10,36 @@ const getTitleAndPrice = (row) => {
     return {food, price}
     }
 
+const priceExpression = /\d{1,2},\d{2}\s{0,1}€/g
+const foodExpression = /\s\d{1,2},\d{2}\s{0,1}€/g
+
+const Itemifier = (menuTitleDay) => {
+      menuItemDay = []
+      menuItemDay2 = []
+      menuTitleDay.forEach(row => {
+        if (row.includes(0)) {
+            menuItemDay.push(row)
+            menuItemDay2.push(menuItemDay)
+            menuItemDay = []
+        } else{
+            menuItemDay.push(row)
+        }
+    })
+    return menuItemDay2
+    }
+
+// const getPrice = (row) => {
+//     const price = row
+//     return {price}
+// }
+
+// const getTitle = (row) => {
+//     const title = row
+//     return{title}
+// }
+
+// const getFoodObject = (title, price) => {title, price}
+
 const getBlankoMenu = async() => {
     const axiosResponse = await axios.get("https://blanko.net/lounas")
 
@@ -26,7 +56,6 @@ const getBlankoMenu = async() => {
         To: [],
         Pe: []
         }
-    //const Food = getTitleAndPrice(row).Food
     menuWithoutWeek.forEach(row => { 
         if (row.length === 2) {
             Weekday = row
@@ -44,7 +73,7 @@ const getGetTreviMenu = async() => {
     const axiosResponse = await axios.get("https://ditrevi.fi/lounas")
   
       const $ = await cheerio.load(axiosResponse.data)
-      let menuItemTitles = {Ma: [], Ti: [], Ke: [], To: [], Pe: []}
+      let menuItemTitles = {ma: [], ti: [], ke: [], to: [], pe: []}
       //alkuperäinen tapa jolla hain ruokalistan, en nähnyt mitään tapaa hakea id:tä jälkikäteen, laiton jokaisen päivän erikseen
       //const weekDaySelectors = 
       //$("#ditrevi-ma h5 b, #ditrevi-ti h5 b, #ditrevi-ke h5 b, #ditrevi-to h5 b, #ditrevi-pe h5 b")
@@ -53,23 +82,43 @@ const getGetTreviMenu = async() => {
       const weekDayKe = $("#ditrevi-ke h5 b")
       const weekDayTo = $("#ditrevi-to h5 b")
       const weekDayPe = $("#ditrevi-pe h5 b")
-      weekDayMa.each((index, row) => menuItemTitles.Ma.push(row.firstChild.data))
-      weekDayTi.each((index, row) => menuItemTitles.Ti.push(row.firstChild.data))
-      weekDayKe.each((index, row) => menuItemTitles.Ke.push(row.firstChild.data))
-      weekDayTo.each((index, row) => menuItemTitles.To.push(row.firstChild.data))
-      weekDayPe.each((index, row) => menuItemTitles.Pe.push(row.firstChild.data))
-      const dayObjectMa = menuItemTitles.Ma.map(menuitem => 
-        ({price: menuitem.match(/\d{1,2},\d{2}\s{0,1}€/g)[0], food: menuitem.replace(/\s\d{1,2},\d{2}\s{0,1}€/g, "")}))
-        const dayObjectTi = menuItemTitles.Ti.map(menuitem => 
-            ({price: menuitem.match(/\d{1,2},\d{2}\s{0,1}€/g)[0], food: menuitem.replace(/\s\d{1,2},\d{2}\s{0,1}€/g, "")}))
-            const dayObjectKe = menuItemTitles.Ke.map(menuitem => 
-                ({price: menuitem.match(/\d{1,2},\d{2}\s{0,1}€/g)[0], food: menuitem.replace(/\s\d{1,2},\d{2}\s{0,1}€/g, "")}))
-                const dayObjectTo = menuItemTitles.To.map(menuitem => 
-                    ({price: menuitem.match(/\d{1,2},\d{2}\s{0,1}€/g)[0], food: menuitem.replace(/\s\d{1,2},\d{2}\s{0,1}€/g, "")}))
-                    const dayObjectPe = menuItemTitles.Pe.map(menuitem => 
-                        ({price: menuitem.match(/\d{1,2},\d{2}\s{0,1}€/g)[0], food: menuitem.replace(/\s\d{1,2},\d{2}\s{0,1}€/g, "")}))
-      let menuItemTitlesTrevi = {Ma: dayObjectMa, Ti: dayObjectTi, Ke: dayObjectKe, To: dayObjectTo, Pe: dayObjectPe}
+      weekDayMa.each((index, row) => menuItemTitles.ma.push(row.firstChild.data))
+      weekDayTi.each((index, row) => menuItemTitles.ti.push(row.firstChild.data))
+      weekDayKe.each((index, row) => menuItemTitles.ke.push(row.firstChild.data))
+      weekDayTo.each((index, row) => menuItemTitles.to.push(row.firstChild.data))
+      weekDayPe.each((index, row) => menuItemTitles.pe.push(row.firstChild.data))
+      const dayObjectMa = menuItemTitles.ma.map(menuitem => 
+        ({price: menuitem.match(priceExpression)[0], food: menuitem.replace(foodExpression, "")}))
+        const dayObjectTi = menuItemTitles.ti.map(menuitem => 
+            ({price: menuitem.match(priceExpression)[0], food: menuitem.replace(foodExpression, "")}))
+            const dayObjectKe = menuItemTitles.ke.map(menuitem => 
+                ({price: menuitem.match(priceExpression)[0], food: menuitem.replace(foodExpression, "")}))
+                const dayObjectTo = menuItemTitles.to.map(menuitem => 
+                    ({price: menuitem.match(priceExpression)[0], food: menuitem.replace(foodExpression, "")}))
+                    const dayObjectPe = menuItemTitles.pe.map(menuitem => 
+                        ({price: menuitem.match(priceExpression)[0], food: menuitem.replace(foodExpression, "")}))
+      let menuItemTitlesTrevi = {ma: dayObjectMa, ti: dayObjectTi, ke: dayObjectKe, to: dayObjectTo, pe: dayObjectPe}
       return menuItemTitlesTrevi
+}
+
+const getGetFontanaMenu = async() => {
+    const axiosResponse = await axios.get("https://www.fontana.fi/lunch/")
+  
+      const $ = await cheerio.load(axiosResponse.data)
+      let menuItemTitles = {ma: [], ti: [], ke: [], to: [], pe: []}
+      const weekDayMa = $("#fontana-ma b, #fontana-ma span")
+      const weekDayTi = $("#fontana-ti b, #fontana-ti span")
+      const weekDayKe = $("#fontana-ke b, #fontana-ke span")
+      const weekDayTo = $("#fontana-to b, #fontana-to span")
+      const weekDayPe = $("#fontana-pe b, #fontana-pe span")
+      //weekDayMa.each((index, row) => menuItemTitles.ma.push(row.firstChild.data))
+      weekDayTi.each((index, row) => menuItemTitles.ti.push(row.firstChild.data))
+      weekDayKe.each((index, row) => menuItemTitles.ke.push(row.firstChild.data))
+      weekDayTo.each((index, row) => menuItemTitles.to.push(row.firstChild.data))
+      weekDayPe.each((index, row) => menuItemTitles.pe.push(row.firstChild.data))
+      const DayMa = Itemifier(menuItemTitles.ma)
+      menuItemTitles.ma.push(DayMa)
+      return menuItemTitles
 }
 
 const getGetTintaMenu = async() => {
@@ -77,9 +126,43 @@ const getGetTintaMenu = async() => {
   
       const $ = await cheerio.load(axiosResponse.data)
       let menuItemTitles = []
-      $("#block-yui_3_17_2_1_1590759187616_10825").each((index, element) => menuItemTitles.push(element.firstChild.data))
-      console.log(menuItemTitles)
-    return menuItemTitles
+      $("h2").parent().find("p, h2")
+      .each((index, element) => menuItemTitles.push($(element).text().trim()))
+      let Weekday = ""
+      let menuWeekArrays = {
+          ma: [],
+          ti: [],
+          ke: [],
+          to: [],
+          pe: []
+          }
+    menuItemTitles.forEach(row => { 
+        if (row.length === 2) {
+              Weekday = row.toLowerCase()
+        } else if (Weekday !== "") {
+              menuWeekArrays[Weekday].push(row)
+          }
+      })
+      
+const Combine = (menuWeekArray) => {
+    
+      const arr = menuWeekArray.filter(menu => menu !== "")
+
+      let newWeekArray = []
+      for (let index = 0; index < arr.length; index += 2) {
+          const food = arr[index];
+          const price = arr[index+1];
+          const element = {food, price}
+        newWeekArray.push(element)
+      }
+      return newWeekArray
+}
+menuWeekArrays.ma = Combine(menuWeekArrays.ma)
+menuWeekArrays.ti = Combine(menuWeekArrays.ti)
+menuWeekArrays.ke = Combine(menuWeekArrays.ke)
+menuWeekArrays.to = Combine(menuWeekArrays.to)
+menuWeekArrays.pe = Combine(menuWeekArrays.pe)
+    return menuWeekArrays
 }
 
     app.get('/blanko', async function(req, res){
@@ -93,9 +176,13 @@ const getGetTintaMenu = async() => {
     res.send(treviMenu)
 })
 
-app.get('/tinta', async function(req, res){
-    const tintaMenu = await getGetTintaMenu()
-res.send(tintaMenu)
+    app.get('/tinta', async function(req, res){
+        const tintaMenu = await getGetTintaMenu()
+    res.send(tintaMenu)
+})
+    app.get('/fontana', async function(req, res){
+        const fontanaMenu = await getGetFontanaMenu()
+    res.send(fontanaMenu)
 })
 
 app.listen('3001')

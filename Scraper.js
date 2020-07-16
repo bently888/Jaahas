@@ -3,6 +3,14 @@ const axios = require('axios');
 const cheerio = require('cheerio')
 const app     = express();
 
+// const getHomePage = async() => {
+//     const listResponse = await app.get("/")
+//     console.log(listResponse)
+//     const $ = await cheerio.load(listResponse.data)
+
+//   return listResponse
+// }
+
 const getTitleAndPrice = (row) => {
     const len = row.length
     const price = row.substring(len-5)
@@ -13,32 +21,22 @@ const getTitleAndPrice = (row) => {
 const priceExpression = /\d{1,2},\d{2}\s{0,1}€/g
 const foodExpression = /\s\d{1,2},\d{2}\s{0,1}€/g
 
-const Itemifier = (menuTitleDay) => {
-      menuItemDay = []
-      menuItemDay2 = []
-      menuTitleDay.forEach(row => {
-        if (row.includes(0)) {
-            menuItemDay.push(row)
-            menuItemDay2.push(menuItemDay)
-            menuItemDay = []
-        } else{
-            menuItemDay.push(row)
-        }
+const itemifier = (ItemDay) => {
+    menuItemDay = ""
+    menuTitleDay = ItemDay
+    menuTitleDay2 = []
+    menuTitleDay.forEach(row => {
+      if (row.includes(0)) {
+          menuItemDay += row
+          menuTitleDay2.push(menuItemDay)
+          menuItemDay = ""
+      } else {
+          menuItemDay += row + " "
+      }
     })
-    return menuItemDay2
-    }
-
-// const getPrice = (row) => {
-//     const price = row
-//     return {price}
-// }
-
-// const getTitle = (row) => {
-//     const title = row
-//     return{title}
-// }
-
-// const getFoodObject = (title, price) => {title, price}
+    console.log(menuTitleDay2)
+    return menuTitleDay2
+}
 
 const getBlankoMenu = async() => {
     const axiosResponse = await axios.get("https://blanko.net/lounas")
@@ -69,7 +67,7 @@ const getBlankoMenu = async() => {
     return (menuWeekArrays)
 }
 
-const getGetTreviMenu = async() => {
+const getTreviMenu = async() => {
     const axiosResponse = await axios.get("https://ditrevi.fi/lounas")
   
       const $ = await cheerio.load(axiosResponse.data)
@@ -101,27 +99,47 @@ const getGetTreviMenu = async() => {
       return menuItemTitlesTrevi
 }
 
-const getGetFontanaMenu = async() => {
+const getFontanaMenu = async() => {
     const axiosResponse = await axios.get("https://www.fontana.fi/lunch/")
   
       const $ = await cheerio.load(axiosResponse.data)
-      let menuItemTitles = {ma: [], ti: [], ke: [], to: [], pe: []}
+    let menuItemTitles = {ma: [], ti: [], ke: [], to: [], pe: []}
+    let menuItemTitles2 = {ma: [], ti: [], ke: [], to: [], pe: []}
       const weekDayMa = $("#fontana-ma b, #fontana-ma span")
       const weekDayTi = $("#fontana-ti b, #fontana-ti span")
       const weekDayKe = $("#fontana-ke b, #fontana-ke span")
       const weekDayTo = $("#fontana-to b, #fontana-to span")
       const weekDayPe = $("#fontana-pe b, #fontana-pe span")
-      //weekDayMa.each((index, row) => menuItemTitles.ma.push(row.firstChild.data))
+      weekDayMa.each((index, row) => menuItemTitles.ma.push(row.firstChild.data))
       weekDayTi.each((index, row) => menuItemTitles.ti.push(row.firstChild.data))
       weekDayKe.each((index, row) => menuItemTitles.ke.push(row.firstChild.data))
       weekDayTo.each((index, row) => menuItemTitles.to.push(row.firstChild.data))
       weekDayPe.each((index, row) => menuItemTitles.pe.push(row.firstChild.data))
-      const DayMa = Itemifier(menuItemTitles.ma)
-      menuItemTitles.ma.push(DayMa)
-      return menuItemTitles
+      const dayMa = itemifier(menuItemTitles.ma)
+      const dayTi = itemifier(menuItemTitles.ti)
+      const dayKe = itemifier(menuItemTitles.ke)
+      const dayTo = itemifier(menuItemTitles.to)
+      const dayPe = itemifier(menuItemTitles.pe)
+    menuItemTitles2.ma = dayMa
+    menuItemTitles2.ti = dayTi
+    menuItemTitles2.ke = dayKe
+    menuItemTitles2.to = dayTo
+    menuItemTitles2.pe = dayPe
+    const dayObjectMa = menuItemTitles2.ma.map(menuitem => 
+        ({price: menuitem.match(priceExpression)[0], food: menuitem.replace(foodExpression, "")}))
+        const dayObjectTi = menuItemTitles2.ti.map(menuitem => 
+            ({price: menuitem.match(priceExpression)[0], food: menuitem.replace(foodExpression, "")}))
+            const dayObjectKe = menuItemTitles2.ke.map(menuitem => 
+                ({price: menuitem.match(priceExpression)[0], food: menuitem.replace(foodExpression, "")}))
+                const dayObjectTo = menuItemTitles2.to.map(menuitem => 
+                    ({price: menuitem.match(priceExpression)[0], food: menuitem.replace(foodExpression, "")}))
+                    const dayObjectPe = menuItemTitles2.pe.map(menuitem => 
+                        ({price: menuitem.match(priceExpression)[0], food: menuitem.replace(foodExpression, "")}))
+    let menuItemTitlesFontana = {ma: dayObjectMa, ti: dayObjectTi, ke: dayObjectKe, to: dayObjectTo, pe: dayObjectPe}
+    return menuItemTitlesFontana
 }
 
-const getGetTintaMenu = async() => {
+const getTintaMenu = async() => {
     const axiosResponse = await axios.get("https://tinta.fi/lounas")
   
       const $ = await cheerio.load(axiosResponse.data)
@@ -165,6 +183,12 @@ menuWeekArrays.pe = Combine(menuWeekArrays.pe)
     return menuWeekArrays
 }
 
+app.get('/home', async function(req, res){
+        
+    //const homePage = await getHomePage()
+    res.send(homePage)
+})
+
     app.get('/blanko', async function(req, res){
         const blankoMenu = await getBlankoMenu()
     res.send(blankoMenu)
@@ -172,16 +196,16 @@ menuWeekArrays.pe = Combine(menuWeekArrays.pe)
 })
 
     app.get('/ditrevi', async function(req, res){
-        const treviMenu = await getGetTreviMenu()
+        const treviMenu = await getTreviMenu()
     res.send(treviMenu)
 })
 
     app.get('/tinta', async function(req, res){
-        const tintaMenu = await getGetTintaMenu()
+        const tintaMenu = await getTintaMenu()
     res.send(tintaMenu)
 })
     app.get('/fontana', async function(req, res){
-        const fontanaMenu = await getGetFontanaMenu()
+        const fontanaMenu = await getFontanaMenu()
     res.send(fontanaMenu)
 })
 

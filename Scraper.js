@@ -183,11 +183,10 @@ menuWeekArrays.pe = Combine(menuWeekArrays.pe)
     return menuWeekArrays
 }
 
-app.get('/home', async function(req, res){
-        
-    //const homePage = await getHomePage()
-    res.send(homePage)
-})
+// app.get('/home', async function(req, res){       
+//     const homePage = await getHomePage()
+//     res.send(homePage)
+// })
 
     app.get('/blanko', async function(req, res){
         const blankoMenu = await getBlankoMenu()

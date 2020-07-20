@@ -18,7 +18,7 @@ const getTitleAndPrice = (row) => {
     return {food, price}
     }
 
-const priceExpression = /\d{1,2},\d{2}\s{0,1}€/g
+const priceExpression = /\d{1,2},\d{2}\s{0,1}/g
 const foodExpression = /\s\d{1,2},\d{2}\s{0,1}€/g
 
 const itemifier = (ItemDay) => {
@@ -100,20 +100,18 @@ const getTreviMenu = async() => {
 }
 
 const handleFontanaFoodRow = (row) => {
-
     let foodAndPrices = []
-    row.each((i, element) => {
-        if (element.children.length > 1) {
-            element.children.forEach(e => {
-                e.data !== undefined
-                if (e.data && e.data.length > 1) foodAndPrices.push(e.data) 
+    row.each((i, foodRow) => {
+        if (foodRow.children.length > 1) {
+            foodRow.children.forEach(innerFoodRow => {
+                if (innerFoodRow.data && innerFoodRow.data.length > 1) 
+                    foodAndPrices.push(innerFoodRow.data) 
             })
         }
-        else if (element.firstChild.data && element.firstChild.data.length > 1) 
-            foodAndPrices.push(element.firstChild.data)
+        else if (foodRow.firstChild.data && foodRow.firstChild.data.length > 1) 
+            foodAndPrices.push(foodRow.firstChild.data)
     })
     return foodAndPrices
-    
 }
 
 const getFontanaMenu = async() => {
@@ -127,14 +125,7 @@ const getFontanaMenu = async() => {
     menuItemTitles.ke = handleFontanaFoodRow($("#fontana-ke b, #fontana-ke span"))
     menuItemTitles.to = handleFontanaFoodRow($("#fontana-to b, #fontana-to span"))
     menuItemTitles.pe = handleFontanaFoodRow($("#fontana-pe b, #fontana-pe span"))
-    //   weekDayMa.each((index, row) => menuItemTitles.ma.push(row.firstChild.data))
-    //   weekDayTi.each((index, row) => menuItemTitles.ti.push(row.firstChild.data))
-    //   weekDayKe.each((index, row) => menuItemTitles.ke.push(row.firstChild.data))
-    //   weekDayTo.each((index, row) => menuItemTitles.to.push(row.firstChild.data))
-    //   weekDayPe.each((index, row) => menuItemTitles.pe.push(row.firstChild.data))
-      //console.log('font', menuItemTitles.ma)
       const dayMa = itemifier(menuItemTitles.ma)
-      console.log(dayMa)
       const dayTi = itemifier(menuItemTitles.ti)
       const dayKe = itemifier(menuItemTitles.ke)
       const dayTo = itemifier(menuItemTitles.to)

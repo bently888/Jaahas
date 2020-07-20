@@ -90,7 +90,7 @@ const parseMenu = (menuData) => {
         <>
         <div>
         {restaurantData ? 
-        parseBlankoMenu(restaurantData).map(row => <p key={row.food}>{row.food} {row.price}€</p>)
+        parseBlankoMenu(restaurantData).map(row => <p key={row.food}>{row.food} {row.price}</p>)
         : 
         "loading..."}
         </div>

@@ -34,7 +34,7 @@ const itemifier = (ItemDay) => {
           menuItemDay += row + " "
       }
     })
-    console.log(menuTitleDay2)
+    //console.log(menuTitleDay2)
     return menuTitleDay2
 }
 
@@ -99,23 +99,42 @@ const getTreviMenu = async() => {
       return menuItemTitlesTrevi
 }
 
+const handleFontanaFoodRow = (row) => {
+
+    let foodAndPrices = []
+    row.each((i, element) => {
+        if (element.children.length > 1) {
+            element.children.forEach(e => {
+                e.data !== undefined
+                if (e.data && e.data.length > 1) foodAndPrices.push(e.data) 
+            })
+        }
+        else if (element.firstChild.data && element.firstChild.data.length > 1) 
+            foodAndPrices.push(element.firstChild.data)
+    })
+    return foodAndPrices
+    
+}
+
 const getFontanaMenu = async() => {
     const axiosResponse = await axios.get("https://www.fontana.fi/lunch/")
   
       const $ = await cheerio.load(axiosResponse.data)
     let menuItemTitles = {ma: [], ti: [], ke: [], to: [], pe: []}
     let menuItemTitles2 = {ma: [], ti: [], ke: [], to: [], pe: []}
-      const weekDayMa = $("#fontana-ma b, #fontana-ma span")
-      const weekDayTi = $("#fontana-ti b, #fontana-ti span")
-      const weekDayKe = $("#fontana-ke b, #fontana-ke span")
-      const weekDayTo = $("#fontana-to b, #fontana-to span")
-      const weekDayPe = $("#fontana-pe b, #fontana-pe span")
-      weekDayMa.each((index, row) => menuItemTitles.ma.push(row.firstChild.data))
-      weekDayTi.each((index, row) => menuItemTitles.ti.push(row.firstChild.data))
-      weekDayKe.each((index, row) => menuItemTitles.ke.push(row.firstChild.data))
-      weekDayTo.each((index, row) => menuItemTitles.to.push(row.firstChild.data))
-      weekDayPe.each((index, row) => menuItemTitles.pe.push(row.firstChild.data))
+    menuItemTitles.ma = handleFontanaFoodRow($("#fontana-ma b, #fontana-ma span"))
+    menuItemTitles.ti = handleFontanaFoodRow($("#fontana-ti b, #fontana-ti span"))
+    menuItemTitles.ke = handleFontanaFoodRow($("#fontana-ke b, #fontana-ke span"))
+    menuItemTitles.to = handleFontanaFoodRow($("#fontana-to b, #fontana-to span"))
+    menuItemTitles.pe = handleFontanaFoodRow($("#fontana-pe b, #fontana-pe span"))
+    //   weekDayMa.each((index, row) => menuItemTitles.ma.push(row.firstChild.data))
+    //   weekDayTi.each((index, row) => menuItemTitles.ti.push(row.firstChild.data))
+    //   weekDayKe.each((index, row) => menuItemTitles.ke.push(row.firstChild.data))
+    //   weekDayTo.each((index, row) => menuItemTitles.to.push(row.firstChild.data))
+    //   weekDayPe.each((index, row) => menuItemTitles.pe.push(row.firstChild.data))
+      //console.log('font', menuItemTitles.ma)
       const dayMa = itemifier(menuItemTitles.ma)
+      console.log(dayMa)
       const dayTi = itemifier(menuItemTitles.ti)
       const dayKe = itemifier(menuItemTitles.ke)
       const dayTo = itemifier(menuItemTitles.to)
@@ -136,6 +155,7 @@ const getFontanaMenu = async() => {
                     const dayObjectPe = menuItemTitles2.pe.map(menuitem => 
                         ({price: menuitem.match(priceExpression)[0], food: menuitem.replace(foodExpression, "")}))
     let menuItemTitlesFontana = {ma: dayObjectMa, ti: dayObjectTi, ke: dayObjectKe, to: dayObjectTo, pe: dayObjectPe}
+    console.log('fontana', menuItemTitles.ma)
     return menuItemTitlesFontana
 }
 
@@ -205,6 +225,7 @@ menuWeekArrays.pe = Combine(menuWeekArrays.pe)
 })
     app.get('/fontana', async function(req, res){
         const fontanaMenu = await getFontanaMenu()
+        //console.log('fontana', fontanaMenu)
     res.send(fontanaMenu)
 })
 

@@ -48,15 +48,15 @@ const getBlankoMenu = async() => {
     //const [head, ...tail] = menuItemTitles
     let Weekday = ""
     let menuWeekArrays = {
-        Ma: [],
-        Ti: [],
-        Ke: [],
-        To: [],
-        Pe: []
+        ma: [],
+        ti: [],
+        ke: [],
+        to: [],
+        pe: []
         }
     menuWithoutWeek.forEach(row => { 
         if (row.length === 2) {
-            Weekday = row
+            Weekday = row.toLowerCase()
 
         } else {
             const food = getTitleAndPrice(row)

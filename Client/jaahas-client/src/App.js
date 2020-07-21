@@ -2,13 +2,17 @@ import React, { useEffect, useState} from 'react';
 //import logo from './logo.svg';
 import './App.css';
 import axios from 'axios'
+import TimeSelection from './TimeSelection.js';
+import './TimeSelection.css';
 
 const listOfRestaurants = [
-  {name: "Blanko", url: "http://localhost:3001/blanko"},
-  {name: "Di Trevi", url: "http://localhost:3001/ditrevi"},
-  {name: "Fontana", url: "http://localhost:3001/fontana"},
-  {name: "Tintå", url: "http://localhost:3001/tinta"}
+  {name: "Blanko", url: "http://localhost:3001/blanko", lunchUrl: "https://blanko.net/lounas"},
+  {name: "Di Trevi", url: "http://localhost:3001/ditrevi", lunchUrl: "https://ditrevi.fi/lounas/"},
+  {name: "Fontana", url: "http://localhost:3001/fontana", lunchUrl: "https://www.fontana.fi/lunch/"},
+  {name: "Tintå", url: "http://localhost:3001/tinta", lunchUrl: "https://www.tinta.fi/lounas"}
 ]
+
+
 
 function App() {
   const [restaurantData, setRestaurantData] = useState([])
@@ -16,7 +20,7 @@ function App() {
   useEffect(() => {
     listOfRestaurants.forEach(restaurant => {
       axios.get(restaurant.url)
-      .then(response => setRestaurantData(oldState => ([...oldState, {...response, name: restaurant.name}])))
+      .then(response => setRestaurantData(oldState => ([...oldState, {...response, name: restaurant.name, lunchUrl: restaurant.lunchUrl}])))
     })
   }, [])
 
@@ -34,19 +38,29 @@ const parseMenu = (menuData) => {
         <h1 className="main-title">
           Restaurants
         </h1>
+        <div className="restaurants-container">
         { restaurantData && restaurantData.map(restaurant => 
-        <div key={restaurant.name}>
+        <div className="restaurant" key={restaurant.name}>
           <h2>
-          {restaurant.name}
-        </h2>
-        <div>
-        {restaurantData.length !== 0 ? 
-        parseMenu(restaurant.data).map(row => <p key={row.food}>{row.food} {row.price}</p>)
-        : 
-        <p>Loading...</p>}
-        </div>
+            <a href={restaurant.lunchUrl} rel="nofollow">{restaurant.name}</a>
+          </h2>
+          <div className="Menu">
+            {restaurantData.length !== 0 ? 
+            parseMenu(restaurant.data).map(row => <p key={row.food}>{row.food} {row.price}</p>)
+            : 
+            <p>Loading...</p>}
+          </div>
+          <button onclick={TimeSelection()}>Select Time</button>
+          <div id="myModal" class="modal">
+            <div class="modal-content">
+              <span class="close">&times;</span>
+              <p>Some text in the Modal..</p>
+            </div>
+          </div>
+          
         </div>
         )}
+        </div>
     </div>
   );
 }

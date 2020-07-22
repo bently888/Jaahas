@@ -26,4 +26,4 @@ span.onclick = function() {
   }
 }
 
-export default TimeSelection;
+//export default TimeSelection;

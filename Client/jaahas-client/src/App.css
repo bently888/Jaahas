@@ -5,6 +5,15 @@
   
 }
 
+.selectModal {
+  position: absolute;
+    top: 10%;
+    bottom: 10%;
+    right: 10%;
+    left: 10%;
+  background-color: aquamarine;
+}
+
 .main-title {
   text-align: center;
   margin: 0;

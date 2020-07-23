@@ -11,6 +11,8 @@ const app     = express();
 //   return listResponse
 // }
 
+const reservations = []
+
 const getTitleAndPrice = (row) => {
     const len = row.length
     const price = row.substring(len-5)
@@ -198,6 +200,13 @@ menuWeekArrays.pe = Combine(menuWeekArrays.pe)
 //     const homePage = await getHomePage()
 //     res.send(homePage)
 // })
+app.get('/reservations', async function(req, res){
+res.send(reservations)
+})
+
+// app.express.post('/reservations', async function(req, res){
+//     res.send(reservations)
+//     })
 
     app.get('/blanko', async function(req, res){
         const blankoMenu = await getBlankoMenu()

@@ -19,7 +19,7 @@ const times = hours.map(hour => minutes.map(minute => hour + ":" + minute)).flat
 function App() {
   const [restaurantData, setRestaurantData] = useState([])
   const [currentlyOpenModal, setCurrentlyOpenModal] = useState("")
-  //const [foodTrain, setFoodTrain] = useState("")
+  const [foodTrain, setFoodTrain] = useState([])
 
   useEffect(() => {
     listOfRestaurants.forEach(restaurant => {
@@ -28,11 +28,11 @@ function App() {
     })
   }, [])
 
-// const handleSubmit = (event) => {
-//     event.preventDefault();
-//     console.log('button clicked', event.currentTarget)
-//     //setFoodTrain(event.target.value)
-//   }
+  useEffect(() => {
+    axios.get('http://localhost:3001/reservations').then(
+      reservation => setFoodTrain(reservation.data)
+    ) 
+  }, [])
 
 const parseMenu = (menuData) => {
   const now = new Date()
@@ -49,10 +49,10 @@ const parseMenu = (menuData) => {
           Restaurants
         </h1>
         {/* renderöi listan ruokajunista */}
-        {/* <div className="times-chosen">
-          {foodTrain.lenght !== 0 ?
-          foodTrain : ""}
-        </div> */}
+        <div className="times-chosen">
+          {foodTrain.length !== 0 ?
+          foodTrain.map(res => <p key={res.time + res.resta}>{res.resta} at {res.time}<button>join train</button></p>) : ""}
+        </div>
         <div className="restaurants-container">
         { restaurantData && restaurantData.map(restaurant => 
         <div className="restaurant" key={restaurant.name}>
@@ -67,15 +67,20 @@ const parseMenu = (menuData) => {
           </div>
           <button onClick={()=>setCurrentlyOpenModal(restaurant.name)}>Select Time</button>
           {currentlyOpenModal===restaurant.name && <div className="selectModal">
-          <h2>HTML Forms</h2>
+          <h2>Header</h2>
             <div className="time-buttons">
-              {times.map(time => <button id={time} onClick={() => 
+              {times.map(time => <button key={time} id={time} onClick={() => 
+                foodTrain.includes({time: time, resta: restaurant.name}) ?
+                alert("already included")
+                :
                 axios
                 .post('http://localhost:3001/reservations', {time: time, resta: restaurant.name})
-                .then(() => console.log('Reservation Registered'))
+                .then(foodTrain.push({time: time, resta: restaurant.name}))
+                //.then((res) => console.log('resdata', res.data))
                 .catch(err => {
                   console.error(err)
-                })}
+                })
+                }
                 >
                 {time}
                 </button>
@@ -92,3 +97,28 @@ const parseMenu = (menuData) => {
 }
 
 export default App;
+
+{/*const addReservation = (event) => {
+    event.preventDefault()
+    const matchedReservation = foodTrain.find(train => train.time===newTime)
+    if (matchedReservation){
+      if (window.confirm(`${newName} is already added to the phonebook, replace the old number with a new one?`)) {
+      
+        ServerPutReservation(newTime, newRestaurant, matchedReservation.id).then(response => {
+          console.log('putreservation', response.data, foodTrain)
+          const newPutReservation = foodTrain.map(train => {
+            if (train.time===newTime) {
+              return {time: newTime, resta: newRestaurant, id: matchedReservation.id}
+            }
+            else return train
+          })
+          setFoodTrain(newPutReservation)
+      })}
+    } else {
+      ServerAddPerson(newName, newNumber).then(response => {
+      const newPerson = response.data
+      const newPersons = persons.concat(newPerson)
+    setPersons(newPersons)
+    })
+    }
+  }*/}

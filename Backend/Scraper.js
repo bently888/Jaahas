@@ -1,15 +1,9 @@
 const express = require('express');
 const axios = require('axios');
 const cheerio = require('cheerio')
+var bodyParser = require('body-parser')                 
 const app     = express();
-
-// const getHomePage = async() => {
-//     const listResponse = await app.get("/")
-//     console.log(listResponse)
-//     const $ = await cheerio.load(listResponse.data)
-
-//   return listResponse
-// }
+app.use(bodyParser.json())
 
 const reservations = []
 
@@ -148,7 +142,7 @@ const getFontanaMenu = async() => {
                     const dayObjectPe = menuItemTitles2.pe.map(menuitem => 
                         ({price: menuitem.match(priceExpression)[0], food: menuitem.replace(foodExpression, "")}))
     let menuItemTitlesFontana = {ma: dayObjectMa, ti: dayObjectTi, ke: dayObjectKe, to: dayObjectTo, pe: dayObjectPe}
-    console.log('fontana', menuItemTitles.ma)
+    //console.log('fontana', menuItemTitles.ma)
     return menuItemTitlesFontana
 }
 
@@ -196,24 +190,17 @@ menuWeekArrays.pe = Combine(menuWeekArrays.pe)
     return menuWeekArrays
 }
 
-// app.get('/home', async function(req, res){       
-//     const homePage = await getHomePage()
-//     res.send(homePage)
-// })
 app.get('/reservations', async function(req, res){
-res.send(reservations)
+    res.send(reservations)
 })
-
-// app.express.post('/reservations', async function(req, res){
-//     res.send(reservations)
-//     })
-
+app.post('/reservations', async function(req, res){
+    reservations.push(req.body)
+    res.send("homma ok")
+})
     app.get('/blanko', async function(req, res){
         const blankoMenu = await getBlankoMenu()
     res.send(blankoMenu)
-
 })
-
     app.get('/ditrevi', async function(req, res){
         const treviMenu = await getTreviMenu()
     res.send(treviMenu)

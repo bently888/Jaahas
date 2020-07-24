@@ -6,7 +6,7 @@
 }
 
 .selectModal {
-  position: absolute;
+  position: fixed;
     top: 10%;
     bottom: 10%;
     right: 10%;

@@ -33,6 +33,39 @@ function App() {
       reservation => setFoodTrain(reservation.data)
     ) 
   }, [])
+  const onTimeButtonClick = (time, restaurantName) => {
+    foodTrain.some(foodTrainItem => foodTrainItem.resta === restaurantName && foodTrainItem.time === time) ?
+      alert("already included")
+      :
+      axios
+      .post('http://localhost:3001/reservations', {time: time, resta: restaurantName, participants: []})
+      .then(() => {
+      setCurrentlyOpenModal('')
+      setFoodTrain(oldFoodTrain =>
+        [...oldFoodTrain, {time: time, resta: restaurantName, participants: []}]
+      )})
+      //.then((res) => console.log('resdata', res.data))
+      .catch(err => {
+      console.error(err)
+    })
+  }
+
+  const joinTrain = (clickedItem) => {
+    //clickedItem.participants === undefined ?
+    //clickedItem.participants = ['+1']
+    const newFoodTrain = foodTrain.map(foodTrainItem => {
+      if (foodTrainItem.resta === clickedItem.resta && foodTrainItem.time === clickedItem.time)
+        return {...foodTrainItem, participants: [...foodTrainItem.participants, '+1']}
+      else 
+        return foodTrainItem
+    })
+    axios
+      .post('http://localhost:3001/reservations', newFoodTrain)
+      .then(() => setFoodTrain(newFoodTrain))
+    //: setFoodTrain(foodTrain => foodTrain, keyA)
+    //console.log(keyA.trainList)
+    //console.log('key', keyA)
+  }
 
 const parseMenu = (menuData) => {
   const now = new Date()
@@ -51,7 +84,10 @@ const parseMenu = (menuData) => {
         {/* renderöi listan ruokajunista */}
         <div className="times-chosen">
           {foodTrain.length !== 0 ?
-          foodTrain.map(res => <p key={res.time + res.resta}>{res.resta} at {res.time}<button>join train</button></p>) : ""}
+          foodTrain.map(res => 
+          <p key={res.time + res.resta}>{res.resta} at {res.time}- 
+          <button onClick={() => joinTrain(res)}>join train</button>{res.participants}
+          </p>) : ""}
         </div>
         <div className="restaurants-container">
         { restaurantData && restaurantData.map(restaurant => 
@@ -70,16 +106,7 @@ const parseMenu = (menuData) => {
           <h2>Header</h2>
             <div className="time-buttons">
               {times.map(time => <button key={time} id={time} onClick={() => 
-                foodTrain.includes({time: time, resta: restaurant.name}) ?
-                alert("already included")
-                :
-                axios
-                .post('http://localhost:3001/reservations', {time: time, resta: restaurant.name})
-                .then(foodTrain.push({time: time, resta: restaurant.name}))
-                //.then((res) => console.log('resdata', res.data))
-                .catch(err => {
-                  console.error(err)
-                })
+                onTimeButtonClick(time, restaurant.name)
                 }
                 >
                 {time}
@@ -97,28 +124,3 @@ const parseMenu = (menuData) => {
 }
 
 export default App;
-
-{/*const addReservation = (event) => {
-    event.preventDefault()
-    const matchedReservation = foodTrain.find(train => train.time===newTime)
-    if (matchedReservation){
-      if (window.confirm(`${newName} is already added to the phonebook, replace the old number with a new one?`)) {
-      
-        ServerPutReservation(newTime, newRestaurant, matchedReservation.id).then(response => {
-          console.log('putreservation', response.data, foodTrain)
-          const newPutReservation = foodTrain.map(train => {
-            if (train.time===newTime) {
-              return {time: newTime, resta: newRestaurant, id: matchedReservation.id}
-            }
-            else return train
-          })
-          setFoodTrain(newPutReservation)
-      })}
-    } else {
-      ServerAddPerson(newName, newNumber).then(response => {
-      const newPerson = response.data
-      const newPersons = persons.concat(newPerson)
-    setPersons(newPersons)
-    })
-    }
-  }*/}

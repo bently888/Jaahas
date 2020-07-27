@@ -8,7 +8,7 @@
 .selectModal {
   position: fixed;
     top: 10%;
-    bottom: 10%;
+    bottom: 30%;
     right: 10%;
     left: 10%;
   background-color: aquamarine;
@@ -17,10 +17,11 @@
 .time-buttons {
   display: flex;
   flex-direction: column;
+  flex-wrap: wrap;
   justify-content: center;
   align-items: center;
-  height: 75%;
-  overflow-y: scroll;
+  height: 270px;
+  overflow-y: auto;
 }
 
 .main-title {

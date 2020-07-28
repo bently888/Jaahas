@@ -1,6 +1,8 @@
 import React, { useEffect, useState} from 'react';
 import './App.css';
 import axios from 'axios'
+//import { response } from '../../../Backend/Scraper';
+//import Login from "./Login";
 //import foodTrain from '../foodTrain'
 //import TimeSelection from './TimeSelection.js';
 //import './TimeSelection.css';
@@ -19,8 +21,12 @@ const times = hours.map(hour => minutes.map(minute => hour + ":" + minute)).flat
 function App() {
   const [restaurantData, setRestaurantData] = useState([])
   const [currentlyOpenModal, setCurrentlyOpenModal] = useState("")
+  //const [nameModal, setNameModal] = useState("")
   const [foodTrain, setFoodTrain] = useState([])
-
+  const [user, setUser] = useState([], () => {
+    const localData = localStorage.getItem('userData');
+    return localData ? JSON.parse(localData) : [];
+});
   useEffect(() => {
     listOfRestaurants.forEach(restaurant => {
       axios.get(restaurant.url)
@@ -38,12 +44,14 @@ function App() {
       alert("already included")
       :
       axios
-      .post('http://localhost:3001/reservations', {time: time, resta: restaurantName, participants: []})
-      .then(() => {
+      .post('http://localhost:3001/reservations', {time: time, resta: restaurantName, participants: [user]})
+      .then(response => {
+        setFoodTrain(response.data)
       setCurrentlyOpenModal('')
-      setFoodTrain(oldFoodTrain =>
-        [...oldFoodTrain, {time: time, resta: restaurantName, participants: []}]
-      )})
+      // setFoodTrain(oldFoodTrain =>
+      //   [...oldFoodTrain, {time: time, resta: restaurantName, participants: []}]
+      // )
+    })
       //.then((res) => console.log('resdata', res.data))
       .catch(err => {
       console.error(err)
@@ -51,20 +59,11 @@ function App() {
   }
 
   const joinTrain = (clickedItem) => {
-    //clickedItem.participants === undefined ?
-    //clickedItem.participants = ['+1']
-    const newFoodTrain = foodTrain.map(foodTrainItem => {
-      if (foodTrainItem.resta === clickedItem.resta && foodTrainItem.time === clickedItem.time)
-        return {...foodTrainItem, participants: [...foodTrainItem.participants, '+1']}
-      else 
-        return foodTrainItem
-    })
+    //Tähän nimen syöttö
+    //if (user.length<1) return setNameModal("open")
     axios
-      .post('http://localhost:3001/reservations', newFoodTrain)
-      .then(() => setFoodTrain(newFoodTrain))
-    //: setFoodTrain(foodTrain => foodTrain, keyA)
-    //console.log(keyA.trainList)
-    //console.log('key', keyA)
+      .post('http://localhost:3001/join', {time: clickedItem.time, resta: clickedItem.resta, user: user})
+      .then(response => setFoodTrain(response.data))
   }
 
 const parseMenu = (menuData) => {
@@ -82,11 +81,19 @@ const parseMenu = (menuData) => {
           Restaurants
         </h1>
         {/* renderöi listan ruokajunista */}
+        <div className="selectUserName">
+          <h3>Set Username</h3>
+            <div className="name-input">
+              <input type="text" name="name" onChange={e => setUser(e.target.value)}/>
+              {/*<button onClick={}/>*/}
+            </div>
+          {/* <button onClick={()=>setNameModal("")}>close</button> */}
+          </div>
         <div className="times-chosen">
           {foodTrain.length !== 0 ?
           foodTrain.map(res => 
           <p key={res.time + res.resta}>{res.resta} at {res.time}- 
-          <button onClick={() => joinTrain(res)}>join train</button>{res.participants}
+          <button onClick={() => joinTrain(res)} disabled={user.length<1}>join train</button>{res.participants}
           </p>) : ""}
         </div>
         <div className="restaurants-container">
@@ -101,7 +108,7 @@ const parseMenu = (menuData) => {
             : 
             <p>Loading...</p>}
           </div>
-          <button onClick={()=>setCurrentlyOpenModal(restaurant.name)}>Select Time</button>
+          <button onClick={()=>setCurrentlyOpenModal(restaurant.name)} disabled={user.length<1}>Select Time</button>
           {currentlyOpenModal===restaurant.name && <div className="selectModal">
           <h2>Header</h2>
             <div className="time-buttons">

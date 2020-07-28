@@ -5,7 +5,7 @@ var bodyParser = require('body-parser')
 const app     = express();
 app.use(bodyParser.json())
 
-const reservations = []
+let reservations = []
 
 const getTitleAndPrice = (row) => {
     const len = row.length
@@ -195,7 +195,19 @@ app.get('/reservations', async function(req, res){
 })
 app.post('/reservations', async function(req, res){
     reservations.push(req.body)
-    res.send("homma ok")
+    res.send(reservations)
+})
+app.post('/join', async function(req, res){
+    const joinTime = req.body.time
+    const joinRestaurant = req.body.resta
+    reservations = reservations.map(foodTrainItem => {
+      
+        if (foodTrainItem.resta === joinRestaurant && foodTrainItem.time === joinTime)
+          return {...foodTrainItem, participants: [...foodTrainItem.participants, req.body.user]}
+        else 
+          return foodTrainItem
+      })
+    res.send(reservations)
 })
     app.get('/blanko', async function(req, res){
         const blankoMenu = await getBlankoMenu()

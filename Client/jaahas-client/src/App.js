@@ -2,10 +2,6 @@ import React, { useEffect, useState} from 'react';
 import './App.css';
 import axios from 'axios'
 //import { response } from '../../../Backend/Scraper';
-//import Login from "./Login";
-//import foodTrain from '../foodTrain'
-//import TimeSelection from './TimeSelection.js';
-//import './TimeSelection.css';
 
 const listOfRestaurants = [
   {name: "Blanko", url: "http://localhost:3001/blanko", lunchUrl: "https://blanko.net/lounas"},
@@ -48,11 +44,7 @@ function App() {
       .then(response => {
         setFoodTrain(response.data)
       setCurrentlyOpenModal('')
-      // setFoodTrain(oldFoodTrain =>
-      //   [...oldFoodTrain, {time: time, resta: restaurantName, participants: []}]
-      // )
     })
-      //.then((res) => console.log('resdata', res.data))
       .catch(err => {
       console.error(err)
     })

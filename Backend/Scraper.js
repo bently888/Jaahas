@@ -197,6 +197,24 @@ app.post('/reservations', async function(req, res){
     reservations.push(req.body)
     res.send(reservations)
 })
+app.post('/delete', async function(req, res){
+    //jotenkin poista username
+    const username = req.body.user
+    const restaurant = reservations.find(reservation => reservation.participants.includes(username));
+    //console.log('here', req.body)
+    if (restaurant === undefined) return
+    const index =  restaurant.participants.indexOf(username);
+    const newParticipants = restaurant.participants.slice(0, index)
+        .concat(restaurant.participants.slice(index+1, restaurant.participants.length-1))
+    reservations = reservations.map(reservation => {
+        if (reservation.participants.includes(username))
+            return {time: reservation.time, resta: reservation.resta, participants: newParticipants}
+        else return reservation
+    }).filter(reservation => reservation.participants.length!==0)
+    
+    res.send(reservations)
+
+})
 app.post('/join', async function(req, res){
     const joinTime = req.body.time
     const joinRestaurant = req.body.resta

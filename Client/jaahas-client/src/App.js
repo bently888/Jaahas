@@ -14,47 +14,67 @@ const hours = ["10", "11", "12", "13"]
 const minutes = ["00", "05", "10", "15", "20", "25", "30", "35", "40", "45", "50", "55"]
 const times = hours.map(hour => minutes.map(minute => hour + ":" + minute)).flat()
 
+const sound = new Audio("https://www.freespecialeffects.co.uk/soundfx/animals/duck1.wav");
+		sound.loop = true;
+
 function App() {
   const [restaurantData, setRestaurantData] = useState([])
   const [currentlyOpenModal, setCurrentlyOpenModal] = useState("")
   //const [nameModal, setNameModal] = useState("")
   const [foodTrain, setFoodTrain] = useState([])
-  const [user, setUser] = useState([], () => {
-    const localData = localStorage.getItem('userData');
-    return localData ? JSON.parse(localData) : [];
-});
+  const [user, setUser] = useState("")
+    
   useEffect(() => {
     listOfRestaurants.forEach(restaurant => {
       axios.get(restaurant.url)
       .then(response => setRestaurantData(oldState => ([...oldState, {...response, name: restaurant.name, lunchUrl: restaurant.lunchUrl}])))
     })
-  }, [])
 
-  useEffect(() => {
     axios.get('http://localhost:3001/reservations').then(
       reservation => setFoodTrain(reservation.data)
     ) 
+
+    setUser(localStorage.getItem('userData'));
   }, [])
   const onTimeButtonClick = (time, restaurantName) => {
     foodTrain.some(foodTrainItem => foodTrainItem.resta === restaurantName && foodTrainItem.time === time) ?
       alert("already included")
       :
-      axios
-      .post('http://localhost:3001/reservations', {time: time, resta: restaurantName, participants: [user]})
-      .then(response => {
-        setFoodTrain(response.data)
-      setCurrentlyOpenModal('')
-    })
-      .catch(err => {
-      console.error(err)
-    })
+      foodTrain.some(train => train.participants.indexOf(user)>-1) ?
+      //console.log(foodTrain)
+        alert("Already Included2")
+        :
+        axios
+        .post('http://localhost:3001/reservations', {time: time, resta: restaurantName, participants: [user]})
+        .then(response => {
+          setFoodTrain(response.data)
+        setCurrentlyOpenModal('')
+      })
+        .catch(err => {
+        console.error(err)
+      })
   }
 
   const joinTrain = (clickedItem) => {
     //Tähän nimen syöttö
     //if (user.length<1) return setNameModal("open")
+    if (foodTrain.some(train => train.participants.includes(user)))
+      alert("Already Included")
+    else
     axios
       .post('http://localhost:3001/join', {time: clickedItem.time, resta: clickedItem.resta, user: user})
+      .then(response => setFoodTrain(response.data))
+  }
+
+  const deleteName = () => {
+    if (foodTrain.some(train => train.participants.indexOf(user)>-1))
+    //alert("Try to delete from train")
+    var arr = foodTrain.find(train => train.participants.indexOf(user)>-1)
+    //console.log(arr.participants)
+    var index = arr.participants.indexOf(user);
+        arr.participants.splice(index, 1);
+    axios
+      .post('http://localhost:3001/delete', {user: user})
       .then(response => setFoodTrain(response.data))
   }
 
@@ -76,17 +96,22 @@ const parseMenu = (menuData) => {
         <div className="selectUserName">
           <h3>Set Username</h3>
             <div className="name-input">
-              <input type="text" name="name" onChange={e => setUser(e.target.value)}/>
+              <input type="text" name="name" value={user} onChange={e => {localStorage.setItem('userData', e.target.value);
+              setUser(e.target.value)}}/>
               {/*<button onClick={}/>*/}
             </div>
-          {/* <button onClick={()=>setNameModal("")}>close</button> */}
           </div>
         <div className="times-chosen">
           {foodTrain.length !== 0 ?
           foodTrain.map(res => 
           <p key={res.time + res.resta}>{res.resta} at {res.time}- 
-          <button onClick={() => joinTrain(res)} disabled={user.length<1}>join train</button>{res.participants}
+          <button onClick={() => joinTrain(res)} 
+          disabled={user.length<1 
+          || foodTrain.some(train => train.participants.indexOf(user)>-1)
+          }>
+            join train</button>{res.participants.join(", ")}
           </p>) : ""}
+          <button onClick={() => deleteName(user)} disabled={!foodTrain.some(train => train.participants.includes(user))}>delete</button>
         </div>
         <div className="restaurants-container">
         { restaurantData && restaurantData.map(restaurant => 
@@ -104,7 +129,7 @@ const parseMenu = (menuData) => {
           {currentlyOpenModal===restaurant.name && <div className="selectModal">
           <h2>Header</h2>
             <div className="time-buttons">
-              {times.map(time => <button key={time} id={time} onClick={() => 
+              {times.map(time => <button key={time} className="time-button" id={time} onClick={() => 
                 onTimeButtonClick(time, restaurant.name)
                 }
                 >

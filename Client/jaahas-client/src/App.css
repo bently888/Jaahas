@@ -5,6 +5,10 @@
   
 }
 
+.show-tomorrow {
+  position:absolute; top:0; right:0;
+}
+
 .selectModal {
   position: fixed;
     top: 10%;

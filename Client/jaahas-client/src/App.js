@@ -1,6 +1,7 @@
 import React, { useEffect, useState} from 'react';
 import './App.css';
 import axios from 'axios'
+import addNotification from 'react-push-notification';
 //import { response } from '../../../Backend/Scraper';
 
 const listOfRestaurants = [
@@ -13,9 +14,11 @@ const listOfRestaurants = [
 const hours = ["10", "11", "12", "13"]
 const minutes = ["00", "05", "10", "15", "20", "25", "30", "35", "40", "45", "50", "55"]
 const times = hours.map(hour => minutes.map(minute => hour + ":" + minute)).flat()
-
-const sound = new Audio("https://www.freespecialeffects.co.uk/soundfx/animals/duck1.wav");
-		sound.loop = true;
+var currentdate = new Date(); 
+var datetime =  currentdate.getHours() + ":" + currentdate.getMinutes() + ":" + currentdate.getSeconds()
+var splitTime = datetime.split(':')
+var secondsCurrent = (+splitTime[0]) * 60 * 60 + (+splitTime[1]) * 60 + (+splitTime[2]);
+var showTomorrow = false;
 
 function App() {
   const [restaurantData, setRestaurantData] = useState([])
@@ -23,6 +26,7 @@ function App() {
   //const [nameModal, setNameModal] = useState("")
   const [foodTrain, setFoodTrain] = useState([])
   const [user, setUser] = useState("")
+  const [alertTimeOut, setAlertTimeOut] = useState()
     
   useEffect(() => {
     listOfRestaurants.forEach(restaurant => {
@@ -38,11 +42,11 @@ function App() {
   }, [])
   const onTimeButtonClick = (time, restaurantName) => {
     foodTrain.some(foodTrainItem => foodTrainItem.resta === restaurantName && foodTrainItem.time === time) ?
-      alert("already included")
+      alert("Trat lunch train already exists")
       :
       foodTrain.some(train => train.participants.indexOf(user)>-1) ?
       //console.log(foodTrain)
-        alert("Already Included2")
+        alert("You are already in another lunch train")
         :
         axios
         .post('http://localhost:3001/reservations', {time: time, resta: restaurantName, participants: [user]})
@@ -59,7 +63,7 @@ function App() {
     //Tähän nimen syöttö
     //if (user.length<1) return setNameModal("open")
     if (foodTrain.some(train => train.participants.includes(user)))
-      alert("Already Included")
+      alert("You are already in another lunch train")
     else
     axios
       .post('http://localhost:3001/join', {time: clickedItem.time, resta: clickedItem.resta, user: user})
@@ -86,13 +90,62 @@ const parseMenu = (menuData) => {
   return dayMenu
   }
 
+  const parseMenuTomorrow = (menuData) => {
+    const now = new Date()
+    var days = ['ma','ti','ke','to','pe','la','su']
+    var day = days[ now.getDay() ]
+    const dayMenu = menuData[day]
+    return dayMenu
+    }
+
+  const alertTimeSplit = (timeOfAlert) => {
+    var splitAlertTime = timeOfAlert.split(':')
+    var secondsAlert = (+splitAlertTime[0]) * 60 * 60 + (+splitAlertTime[1]) * 60;
+    return (secondsAlert)
+  }
+
+const alertClick = () => { 
+  if(alertTimeOut) clearTimeout(alertTimeOut)
+  if (foodTrain.some(train => train.participants.includes(user)))
+  var trackedTrain = foodTrain.find(train => train.participants.includes(user))
+  var trackedTime = trackedTrain.time
+  //var trackedTimeInt = trackedTime
+  var alertTime = alertTimeSplit(trackedTime)-secondsCurrent
+  //console.log("time", alertTime)
+
+  setAlertTimeOut(setTimeout(() => {
+    addNotification({
+    title: 'Jaahas',
+    subtitle: 'jotain',
+    message: 'Ruokailu at ' + trackedTrain.resta,
+    theme: 'darkblue',
+    tag: "Jaahas",
+    requireInteraction: true,
+    native: true // when using native, your OS will handle theming.
+})
+alert("Syömään!")
+}, 
+alertTime * 1000 - 180000))
+
+  };
+
+  const showTomorrowFunction = () => {
+    if (showTomorrow===true)
+      showTomorrow=false
+    else
+      showTomorrow=true
+    console.log("tomorrow", showTomorrow)
+    return false;
+  }
+
   return (
     <div className="App">
         {/*<img src={logo} className="App-logo" alt="logo" />*/}
         <h1 className="main-title">
-          Restaurants
+          Jaahas App
         </h1>
-        {/* renderöi listan ruokajunista */}
+        <button className="show-tomorrow" onClick={() => showTomorrowFunction()}>tomorrow</button>
+        {/* renderöi nimen ja listan ruokajunista */}
         <div className="selectUserName">
           <h3>Set Username</h3>
             <div className="name-input">
@@ -113,23 +166,30 @@ const parseMenu = (menuData) => {
           </p>) : ""}
           <button onClick={() => deleteName(user)} disabled={!foodTrain.some(train => train.participants.includes(user))}>delete</button>
         </div>
+        <div className="alert-button">
+          <button onClick={alertClick} className="button" disabled={!foodTrain.some(train => train.participants.includes(user))}>
+           Alert
+          </button>
+      </div>
         <div className="restaurants-container">
         { restaurantData && restaurantData.map(restaurant => 
         <div className="restaurant" key={restaurant.name}>
           <h2>
             <a href={restaurant.lunchUrl} rel="nofollow">{restaurant.name}</a>
           </h2>
-          <div className="Menu">
-            {restaurantData.length !== 0 ? 
+          <div className="Menu" id="Menu">
+            {showTomorrow === false ? 
             parseMenu(restaurant.data).map(row => <p key={row.food}>{row.food} {row.price}</p>)
             : 
-            <p>Loading...</p>}
+            parseMenuTomorrow(restaurant.data).map(row => <p key={row.food}>{row.food} {row.price}</p>)}
           </div>
           <button onClick={()=>setCurrentlyOpenModal(restaurant.name)} disabled={user.length<1}>Select Time</button>
           {currentlyOpenModal===restaurant.name && <div className="selectModal">
-          <h2>Header</h2>
+          <h2>Select Time</h2>
             <div className="time-buttons">
-              {times.map(time => <button key={time} className="time-button" id={time} onClick={() => 
+              {times.map(time => <button key={time} className="time-button" id={time} 
+              disabled={alertTimeSplit(time)<secondsCurrent}
+              onClick={() => 
                 onTimeButtonClick(time, restaurant.name)
                 }
                 >

@@ -15,10 +15,10 @@ const hours = ["10", "11", "12", "13"]
 const minutes = ["00", "05", "10", "15", "20", "25", "30", "35", "40", "45", "50", "55"]
 const times = hours.map(hour => minutes.map(minute => hour + ":" + minute)).flat()
 var currentdate = new Date(); 
+const isFriday = currentdate.getDay()===5
 var datetime =  currentdate.getHours() + ":" + currentdate.getMinutes() + ":" + currentdate.getSeconds()
 var splitTime = datetime.split(':')
 var secondsCurrent = (+splitTime[0]) * 60 * 60 + (+splitTime[1]) * 60 + (+splitTime[2]);
-var showTomorrow = false;
 
 function App() {
   const [restaurantData, setRestaurantData] = useState([])
@@ -27,6 +27,7 @@ function App() {
   const [foodTrain, setFoodTrain] = useState([])
   const [user, setUser] = useState("")
   const [alertTimeOut, setAlertTimeOut] = useState()
+  const [showTomorrow, setShowTomorrow] = useState(false)
     
   useEffect(() => {
     listOfRestaurants.forEach(restaurant => {
@@ -84,19 +85,12 @@ function App() {
 
 const parseMenu = (menuData) => {
   const now = new Date()
-  var days = ['su','ma','ti','ke','to','pe','la']
-  var day = days[ now.getDay() ]
+  const days = ['su','ma','ti','ke','to','pe','la']
+  const dayIndex = now.getDay()
+  const day = showTomorrow && isFriday===false  ? days[ dayIndex+1 ] : days[ dayIndex ]
   const dayMenu = menuData[day]
   return dayMenu
   }
-
-  const parseMenuTomorrow = (menuData) => {
-    const now = new Date()
-    var days = ['ma','ti','ke','to','pe','la','su']
-    var day = days[ now.getDay() ]
-    const dayMenu = menuData[day]
-    return dayMenu
-    }
 
   const alertTimeSplit = (timeOfAlert) => {
     var splitAlertTime = timeOfAlert.split(':')
@@ -129,22 +123,13 @@ alertTime * 1000 - 180000))
 
   };
 
-  const showTomorrowFunction = () => {
-    if (showTomorrow===true)
-      showTomorrow=false
-    else
-      showTomorrow=true
-    console.log("tomorrow", showTomorrow)
-    return false;
-  }
-
   return (
     <div className="App">
         {/*<img src={logo} className="App-logo" alt="logo" />*/}
         <h1 className="main-title">
           Jaahas App
         </h1>
-        <button className="show-tomorrow" onClick={() => showTomorrowFunction()}>tomorrow</button>
+          <button className="show-tomorrow" disabled={isFriday} onClick={() => setShowTomorrow(!showTomorrow)}>{showTomorrow?"today":"tomorrow"}</button>
         {/* renderöi nimen ja listan ruokajunista */}
         <div className="selectUserName">
           <h3>Set Username</h3>
@@ -178,10 +163,9 @@ alertTime * 1000 - 180000))
             <a href={restaurant.lunchUrl} rel="nofollow">{restaurant.name}</a>
           </h2>
           <div className="Menu" id="Menu">
-            {showTomorrow === false ? 
+            {
             parseMenu(restaurant.data).map(row => <p key={row.food}>{row.food} {row.price}</p>)
-            : 
-            parseMenuTomorrow(restaurant.data).map(row => <p key={row.food}>{row.food} {row.price}</p>)}
+            }
           </div>
           <button onClick={()=>setCurrentlyOpenModal(restaurant.name)} disabled={user.length<1}>Select Time</button>
           {currentlyOpenModal===restaurant.name && <div className="selectModal">

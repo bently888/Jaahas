@@ -1,0 +1,9 @@
+{
+    "name": "jaahas",
+    "version": "1.0.0",
+    "description": "",
+    "main": "Scraper.js",
+    "scripts": {
+      "postInstall": "npm install --prefix Backend"}
+  }
+  

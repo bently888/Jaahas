@@ -1,1 +1,1 @@
-web: npm install --prefix Backend && npm install --prefix Client && npm run build && cp -r build ..\Backend\ && npm start --prefix Backend
+web: npm install --prefix Backend 

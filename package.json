@@ -3,7 +3,7 @@
     "version": "1.0.0",
     "description": "",
     "main": "Scraper.js",
-    "scripts":{}
+    "scripts":{"postinstall": "npm install --prefix Client && npm run build && cp -r build ../Backend && npm start --prefix Backend"}
       
   }
   

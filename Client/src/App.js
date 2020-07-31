@@ -38,8 +38,9 @@ function App() {
     axios.get('/reservations').then(
       reservation => setFoodTrain(reservation.data)
     ) 
+    const savedUser = localStorage.getItem('userData')
+    setUser(savedUser || "");
 
-    setUser(localStorage.getItem('userData'));
   }, [])
   const onTimeButtonClick = (time, restaurantName) => {
     foodTrain.some(foodTrainItem => foodTrainItem.resta === restaurantName && foodTrainItem.time === time) ?

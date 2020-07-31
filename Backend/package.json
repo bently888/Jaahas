@@ -4,6 +4,7 @@
   "description": "",
   "main": "Scraper.js",
   "scripts": {
+    "start": "node Scraper.js",
     "nodemon": "nodemon Scraper.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },

@@ -5,10 +5,10 @@ import addNotification from 'react-push-notification';
 //import { response } from '../../../Backend/Scraper';
 
 const listOfRestaurants = [
-  {name: "Blanko", url: "http://localhost:3001/blanko", lunchUrl: "https://blanko.net/lounas"},
-  {name: "Di Trevi", url: "http://localhost:3001/ditrevi", lunchUrl: "https://ditrevi.fi/lounas/"},
-  {name: "Fontana", url: "http://localhost:3001/fontana", lunchUrl: "https://www.fontana.fi/lunch/"},
-  {name: "Tintå", url: "http://localhost:3001/tinta", lunchUrl: "https://www.tinta.fi/lounas"}
+  {name: "Blanko", url: "/blanko", lunchUrl: "https://blanko.net/lounas"},
+  {name: "Di Trevi", url: "/ditrevi", lunchUrl: "https://ditrevi.fi/lounas/"},
+  {name: "Fontana", url: "/fontana", lunchUrl: "https://www.fontana.fi/lunch/"},
+  {name: "Tintå", url: "/tinta", lunchUrl: "https://www.tinta.fi/lounas"}
 ]
 
 const hours = ["10", "11", "12", "13"]
@@ -35,7 +35,7 @@ function App() {
       .then(response => setRestaurantData(oldState => ([...oldState, {...response, name: restaurant.name, lunchUrl: restaurant.lunchUrl}])))
     })
 
-    axios.get('http://localhost:3001/reservations').then(
+    axios.get('/reservations').then(
       reservation => setFoodTrain(reservation.data)
     ) 
 
@@ -50,7 +50,7 @@ function App() {
         alert("You are already in another lunch train")
         :
         axios
-        .post('http://localhost:3001/reservations', {time: time, resta: restaurantName, participants: [user]})
+        .post('/reservations', {time: time, resta: restaurantName, participants: [user]})
         .then(response => {
           setFoodTrain(response.data)
         setCurrentlyOpenModal('')
@@ -67,7 +67,7 @@ function App() {
       alert("You are already in another lunch train")
     else
     axios
-      .post('http://localhost:3001/join', {time: clickedItem.time, resta: clickedItem.resta, user: user})
+      .post('/join', {time: clickedItem.time, resta: clickedItem.resta, user: user})
       .then(response => setFoodTrain(response.data))
   }
 
@@ -79,7 +79,7 @@ function App() {
     var index = arr.participants.indexOf(user);
         arr.participants.splice(index, 1);
     axios
-      .post('http://localhost:3001/delete', {user: user})
+      .post('/delete', {user: user})
       .then(response => setFoodTrain(response.data))
   }
 

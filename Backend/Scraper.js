@@ -3,6 +3,7 @@ const axios = require('axios');
 const cheerio = require('cheerio')
 var bodyParser = require('body-parser')                 
 const app     = express();
+app.use(express.static('build'))
 app.use(bodyParser.json())
 
 let reservations = []

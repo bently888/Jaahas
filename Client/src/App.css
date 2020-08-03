@@ -5,6 +5,12 @@
   
 }
 
+.set-filter {
+  position:absolute; left:0; top:0;
+  margin: 0px;
+  padding: 0px;
+}
+
 .show-tomorrow {
   position:absolute; top:0; right:0;
 }

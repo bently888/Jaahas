@@ -31,12 +31,22 @@ var secondsCurrent = (+splitTime[0]) * 60 * 60 + (+splitTime[1]) * 60 + (+splitT
 
 function App() {
   const [restaurantData, setRestaurantData] = useState([])
+  const [filteredRestaurantData, setFilteredRestaurantData] = useState([])
   const [currentlyOpenModal, setCurrentlyOpenModal] = useState("")
   //const [nameModal, setNameModal] = useState("")
   const [foodTrain, setFoodTrain] = useState([])
   const [user, setUser] = useState("")
   const [alertTimeOut, setAlertTimeOut] = useState()
   const [showTomorrow, setShowTomorrow] = useState(false)
+  const [newFilter, setNewFilter] = useState('')
+
+  const filterOnChange = (event) => {    
+    setNewFilter(event.target.value)
+  }
+
+  useEffect (() => {
+    setFilteredRestaurantData(restaurantData.includes(newFilter))
+  }, [restaurantData, newFilter])
     
   useEffect(() => {
     listOfRestaurants.forEach(restaurant => {
@@ -107,6 +117,7 @@ alertTime * 1000 - 180000))
         </h1>
           <button className="show-tomorrow" disabled={isFriday} onClick={() => 
             setShowTomorrow(!showTomorrow)}>{showTomorrow?"today":"tomorrow"}</button>
+            <p className="set-filter"><input onChange={filterOnChange}/>filter restaurants</p>
         {/* renderöi nimen ja listan ruokajunista */}
       <SelectUserName user={user} setUser={setUser}/>
       <FoodTrains user={user} foodTrain={foodTrain} setFoodTrain={setFoodTrain}/>
@@ -115,7 +126,7 @@ alertTime * 1000 - 180000))
            Alert
           </button>
       </div>
-      <Restaurants data={restaurantData} onSelectTimeClick={setCurrentlyOpenModal} onTimeButtonClick={onTimeButtonClick} 
+      <Restaurants data={filteredRestaurantData} onSelectTimeClick={setCurrentlyOpenModal} onTimeButtonClick={onTimeButtonClick} 
       showTomorrow={showTomorrow} allowReservations={user.length>0} currentlyOpenModal={currentlyOpenModal}/>
     </div>
   );

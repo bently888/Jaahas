@@ -42,8 +42,7 @@ const getBlankoMenu = async() => {
     const menuItemTitles = []
     $(".menu-item-title").each((index, element) => menuItemTitles.push(element.firstChild.data))
     const menuWithoutWeek = menuItemTitles.filter(menu => menu !== menuItemTitles[0])
-    //const [head, ...tail] = menuItemTitles
-    let Weekday = ""
+    let Weekday = "ma"
     let menuWeekArrays = {
         ma: [],
         ti: [],
@@ -57,7 +56,6 @@ const getBlankoMenu = async() => {
 
         } else {
             const food = getTitleAndPrice(row)
-            //console.log('food', Food[0], Food[1])
             menuWeekArrays[Weekday].push(food)
         }
     })

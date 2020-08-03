@@ -129,7 +129,7 @@ alertTime * 1000 - 180000))
       <div className="Content">
         {/*<img src={logo} className="App-logo" alt="logo" />*/}
         <h1 className="main-title">
-          Jaahas App is Here
+          Jaahas
         </h1>
           <button className="show-tomorrow" disabled={isFriday} onClick={() => setShowTomorrow(!showTomorrow)}>{showTomorrow?"today":"tomorrow"}</button>
         {/* renderöi nimen ja listan ruokajunista */}

@@ -8,6 +8,11 @@ app.use(bodyParser.json())
 
 let reservations = []
 
+const nyt = () => {
+    const nytString = new Date().getTime()
+    return nytString
+}
+
 const getTitleAndPrice = (row) => {
     const len = row.length
     const price = row.substring(len-5)
@@ -34,8 +39,9 @@ const itemifier = (ItemDay) => {
     //console.log(menuTitleDay2)
     return menuTitleDay2
 }
-
+let blankocache = ""
 const getBlankoMenu = async() => {
+    if (blankocache.timestamp && nyt() - blankocache.timestamp < 18000000) return blankocache.menu
     const axiosResponse = await axios.get("https://blanko.net/lounas")
 
     const $ = await cheerio.load(axiosResponse.data)
@@ -59,10 +65,13 @@ const getBlankoMenu = async() => {
             menuWeekArrays[Weekday].push(food)
         }
     })
+    blankocache = {menu: menuWeekArrays, timestamp: nyt()}
     return (menuWeekArrays)
 }
 
+let trevicache = ""
 const getTreviMenu = async() => {
+    if (trevicache.timestamp && nyt() - trevicache.timestamp < 18000000) return trevicache.menu
     const axiosResponse = await axios.get("https://ditrevi.fi/lounas")
   
       const $ = await cheerio.load(axiosResponse.data)
@@ -91,6 +100,7 @@ const getTreviMenu = async() => {
                     const dayObjectPe = menuItemTitles.pe.map(menuitem => 
                         ({price: menuitem.match(priceExpression)[0], food: menuitem.replace(foodExpression, "")}))
       let menuItemTitlesTrevi = {ma: dayObjectMa, ti: dayObjectTi, ke: dayObjectKe, to: dayObjectTo, pe: dayObjectPe}
+      trevicache = {menu: menuItemTitlesTrevi, timestamp: nyt()}
       return menuItemTitlesTrevi
 }
 
@@ -109,7 +119,9 @@ const handleFontanaFoodRow = (row) => {
     return foodAndPrices
 }
 
+let fontanacache = ""
 const getFontanaMenu = async() => {
+    if (fontanacache.timestamp && nyt() - fontanacache.timestamp < 18000000) return fontanacache.menu
     const axiosResponse = await axios.get("https://www.fontana.fi/lunch/")
   
       const $ = await cheerio.load(axiosResponse.data)
@@ -142,10 +154,13 @@ const getFontanaMenu = async() => {
                         ({price: menuitem.match(priceExpression)[0], food: menuitem.replace(foodExpression, "")}))
     let menuItemTitlesFontana = {ma: dayObjectMa, ti: dayObjectTi, ke: dayObjectKe, to: dayObjectTo, pe: dayObjectPe}
     //console.log('fontana', menuItemTitles.ma)
+    fontanacache = {menu: menuItemTitlesFontana, timestamp: nyt()}
     return menuItemTitlesFontana
 }
 
+let tintacache = ""
 const getTintaMenu = async() => {
+    if (tintacache.timestamp && nyt() - tintacache.timestamp < 18000000) return tintacache.menu
     const axiosResponse = await axios.get("https://tinta.fi/lounas")
   
       const $ = await cheerio.load(axiosResponse.data)
@@ -186,6 +201,7 @@ menuWeekArrays.ti = Combine(menuWeekArrays.ti)
 menuWeekArrays.ke = Combine(menuWeekArrays.ke)
 menuWeekArrays.to = Combine(menuWeekArrays.to)
 menuWeekArrays.pe = Combine(menuWeekArrays.pe)
+    tintacache = {menu: menuWeekArrays, timestamp: nyt()}
     return menuWeekArrays
 }
 app.get('/', (req, res) => {

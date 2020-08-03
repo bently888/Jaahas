@@ -188,6 +188,9 @@ menuWeekArrays.to = Combine(menuWeekArrays.to)
 menuWeekArrays.pe = Combine(menuWeekArrays.pe)
     return menuWeekArrays
 }
+app.get('/', (req, res) => {
+    res.setHeader('Content-Type', 'text/html');
+  })
 
 app.get('/reservations', async function(req, res){
     res.send(reservations)

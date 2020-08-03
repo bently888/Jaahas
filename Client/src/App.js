@@ -126,6 +126,7 @@ alertTime * 1000 - 180000))
 
   return (
     <div className="App">
+      <div className="Content">
         {/*<img src={logo} className="App-logo" alt="logo" />*/}
         <h1 className="main-title">
           Jaahas App is Here
@@ -187,6 +188,7 @@ alertTime * 1000 - 180000))
           }
         </div>
         )}
+        </div>
         </div>
     </div>
   );

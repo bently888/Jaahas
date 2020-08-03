@@ -2,18 +2,27 @@ import React, { useEffect, useState} from 'react';
 import './App.css';
 import axios from 'axios'
 import addNotification from 'react-push-notification';
+import Restaurants from './Restaurants';
+import FoodTrains from './FoodTrains';
+import SelectUserName from './SelectUserName';
 //import { response } from '../../../Backend/Scraper';
 
 const listOfRestaurants = [
   {name: "Blanko", url: "/blanko", lunchUrl: "https://blanko.net/lounas"},
   {name: "Di Trevi", url: "/ditrevi", lunchUrl: "https://ditrevi.fi/lounas/"},
   {name: "Fontana", url: "/fontana", lunchUrl: "https://www.fontana.fi/lunch/"},
-  {name: "Tintå", url: "/tinta", lunchUrl: "https://www.tinta.fi/lounas"}
+  {name: "Tintå", url: "/tinta", lunchUrl: "https://www.tinta.fi/lounas"},
+  {name: "Dennis", url: "na", lunchUrl: "https://dennis.fi/pizzeria-ravintolat/turku-linnankatu/"},
+  {name: "Niska", url: "na", lunchUrl: "https://www.niskaturku.com/fi/Lounas"},
+  {name: "Kawaii", url: "na", lunchUrl: "https://www.ravintolakawaii.com/"}
 ]
 
-const hours = ["10", "11", "12", "13"]
-const minutes = ["00", "05", "10", "15", "20", "25", "30", "35", "40", "45", "50", "55"]
-const times = hours.map(hour => minutes.map(minute => hour + ":" + minute)).flat()
+export const alertTimeSplit = (timeOfAlert) => {
+  var splitAlertTime = timeOfAlert.split(':')
+  var secondsAlert = (+splitAlertTime[0]) * 60 * 60 + (+splitAlertTime[1]) * 60;
+  return (secondsAlert)
+}
+
 var currentdate = new Date(); 
 const isFriday = currentdate.getDay()===5
 var datetime =  currentdate.getHours() + ":" + currentdate.getMinutes() + ":" + currentdate.getSeconds()
@@ -31,8 +40,11 @@ function App() {
     
   useEffect(() => {
     listOfRestaurants.forEach(restaurant => {
+      if (restaurant.url!=="na")
       axios.get(restaurant.url)
       .then(response => setRestaurantData(oldState => ([...oldState, {...response, name: restaurant.name, lunchUrl: restaurant.lunchUrl}])))
+      else
+      setRestaurantData(oldState => ([...oldState, {name: restaurant.name, lunchUrl: restaurant.lunchUrl}]))
     })
 
     axios.get('/reservations').then(
@@ -42,62 +54,24 @@ function App() {
     setUser(savedUser || "");
 
   }, [])
-  const onTimeButtonClick = (time, restaurantName) => {
-    foodTrain.some(foodTrainItem => foodTrainItem.resta === restaurantName && foodTrainItem.time === time) ?
-      alert("Trat lunch train already exists")
-      :
-      foodTrain.some(train => train.participants.indexOf(user)>-1) ?
-      //console.log(foodTrain)
-        alert("You are already in another lunch train")
-        :
-        axios
-        .post('/reservations', {time: time, resta: restaurantName, participants: [user]})
-        .then(response => {
-          setFoodTrain(response.data)
-        setCurrentlyOpenModal('')
-      })
-        .catch(err => {
-        console.error(err)
-      })
-  }
 
-  const joinTrain = (clickedItem) => {
-    //Tähän nimen syöttö
-    //if (user.length<1) return setNameModal("open")
-    if (foodTrain.some(train => train.participants.includes(user)))
-      alert("You are already in another lunch train")
-    else
+const onTimeButtonClick = (time, restaurantName) => {
+  foodTrain.some(foodTrainItem => foodTrainItem.resta === restaurantName && foodTrainItem.time === time) ?
+    alert("Trat lunch train already exists")
+    :
+    foodTrain.some(train => train.participants.indexOf(user)>-1) ?
+    alert("You are already in another lunch train")
+    :
     axios
-      .post('/join', {time: clickedItem.time, resta: clickedItem.resta, user: user})
-      .then(response => setFoodTrain(response.data))
-  }
-
-  const deleteName = () => {
-    if (foodTrain.some(train => train.participants.indexOf(user)>-1))
-    //alert("Try to delete from train")
-    var arr = foodTrain.find(train => train.participants.indexOf(user)>-1)
-    //console.log(arr.participants)
-    var index = arr.participants.indexOf(user);
-        arr.participants.splice(index, 1);
-    axios
-      .post('/delete', {user: user})
-      .then(response => setFoodTrain(response.data))
-  }
-
-const parseMenu = (menuData) => {
-  const now = new Date()
-  const days = ['su','ma','ti','ke','to','pe','la']
-  const dayIndex = now.getDay()
-  const day = showTomorrow && isFriday===false  ? days[ dayIndex+1 ] : days[ dayIndex ]
-  const dayMenu = menuData[day]
-  return dayMenu
-  }
-
-  const alertTimeSplit = (timeOfAlert) => {
-    var splitAlertTime = timeOfAlert.split(':')
-    var secondsAlert = (+splitAlertTime[0]) * 60 * 60 + (+splitAlertTime[1]) * 60;
-    return (secondsAlert)
-  }
+    .post('/reservations', {time: time, resta: restaurantName, participants: [user]})
+    .then(response => {
+        setFoodTrain(response.data)
+      setCurrentlyOpenModal('')
+    })
+  .catch(err => {
+    console.error(err)
+  })
+}
 
 const alertClick = () => { 
   if(alertTimeOut) clearTimeout(alertTimeOut)
@@ -106,6 +80,7 @@ const alertClick = () => {
   var trackedTime = trackedTrain.time
   //var trackedTimeInt = trackedTime
   var alertTime = alertTimeSplit(trackedTime)-secondsCurrent
+  console.log(restaurantData)
   //console.log("time", alertTime)
 
   setAlertTimeOut(setTimeout(() => {
@@ -126,70 +101,22 @@ alertTime * 1000 - 180000))
 
   return (
     <div className="App">
-      <div className="Content">
         {/*<img src={logo} className="App-logo" alt="logo" />*/}
         <h1 className="main-title">
           Jaahas
         </h1>
-          <button className="show-tomorrow" disabled={isFriday} onClick={() => setShowTomorrow(!showTomorrow)}>{showTomorrow?"today":"tomorrow"}</button>
+          <button className="show-tomorrow" disabled={isFriday} onClick={() => 
+            setShowTomorrow(!showTomorrow)}>{showTomorrow?"today":"tomorrow"}</button>
         {/* renderöi nimen ja listan ruokajunista */}
-        <div className="selectUserName">
-          <h3>Set Username</h3>
-            <div className="name-input">
-              <input type="text" name="name" value={user} onChange={e => {localStorage.setItem('userData', e.target.value);
-              setUser(e.target.value)}}/>
-              {/*<button onClick={}/>*/}
-            </div>
-          </div>
-        <div className="times-chosen">
-          {foodTrain.length !== 0 ?
-          foodTrain.map(res => 
-          <p key={res.time + res.resta}>{res.resta} at {res.time}- 
-          <button onClick={() => joinTrain(res)} 
-          disabled={user.length<1 
-          || foodTrain.some(train => train.participants.indexOf(user)>-1)
-          }>
-            join train</button>{res.participants.join(", ")}
-          </p>) : ""}
-          <button onClick={() => deleteName(user)} disabled={!foodTrain.some(train => train.participants.includes(user))}>delete</button>
-        </div>
-        <div className="alert-button">
+      <SelectUserName user={user} setUser={setUser}/>
+      <FoodTrains user={user} foodTrain={foodTrain} setFoodTrain={setFoodTrain}/>
+      <div className="alert-button">
           <button onClick={alertClick} className="button" disabled={!foodTrain.some(train => train.participants.includes(user))}>
            Alert
           </button>
       </div>
-        <div className="restaurants-container">
-        { restaurantData && restaurantData.map(restaurant => 
-        <div className="restaurant" key={restaurant.name}>
-          <h2>
-            <a href={restaurant.lunchUrl} rel="nofollow">{restaurant.name}</a>
-          </h2>
-          <div className="Menu" id="Menu">
-            {
-            parseMenu(restaurant.data).map(row => <p key={row.food}>{row.food} {row.price}</p>)
-            }
-          </div>
-          <button onClick={()=>setCurrentlyOpenModal(restaurant.name)} disabled={user.length<1}>Select Time</button>
-          {currentlyOpenModal===restaurant.name && <div className="selectModal">
-          <h2>Select Time</h2>
-            <div className="time-buttons">
-              {times.map(time => <button key={time} className="time-button" id={time} 
-              disabled={alertTimeSplit(time)<secondsCurrent}
-              onClick={() => 
-                onTimeButtonClick(time, restaurant.name)
-                }
-                >
-                {time}
-                </button>
-              )}
-            </div>
-          <button onClick={()=>setCurrentlyOpenModal("")}>close</button>
-          </div>
-          }
-        </div>
-        )}
-        </div>
-        </div>
+      <Restaurants data={restaurantData} onSelectTimeClick={setCurrentlyOpenModal} onTimeButtonClick={onTimeButtonClick} 
+      showTomorrow={showTomorrow} allowReservations={user.length>0} currentlyOpenModal={currentlyOpenModal}/>
     </div>
   );
 }

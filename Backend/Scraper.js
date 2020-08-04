@@ -13,6 +13,10 @@ const nyt = () => {
     return nytString
 }
 
+const calculateMinutesCurrent=(date) => {
+    const datetime =  date.getHours() + ":" + date.getMinutes()
+    return datetime.split(':')}
+
 const getTitleAndPrice = (row) => {
     const len = row.length
     const price = row.substring(len-5)
@@ -237,7 +241,8 @@ app.post('/join', async function(req, res){
     const joinTime = req.body.time
     const joinRestaurant = req.body.resta
     reservations = reservations.map(foodTrainItem => {
-      
+        if (foodTrainItem.resta === joinRestaurant && foodTrainItem.time === joinTime && joinTime<calculateMinutesCurrent(new Date()))
+            return foodTrainItem//tämä kohta ei tee mitään?
         if (foodTrainItem.resta === joinRestaurant && foodTrainItem.time === joinTime)
           return {...foodTrainItem, participants: [...foodTrainItem.participants, req.body.user]}
         else 

@@ -23,11 +23,14 @@ export const alertTimeSplit = (timeOfAlert) => {
   return (secondsAlert)
 }
 
-var currentdate = new Date(); 
-const isFriday = currentdate.getDay()===5
-var datetime =  currentdate.getHours() + ":" + currentdate.getMinutes() + ":" + currentdate.getSeconds()
-var splitTime = datetime.split(':')
-var secondsCurrent = (+splitTime[0]) * 60 * 60 + (+splitTime[1]) * 60 + (+splitTime[2]);
+const currentDate = new Date() 
+const isFriday = currentDate.getDay()===5
+
+const calculateSecondsCurrent=(date) => {
+  const datetime =  date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds()
+  const splitTime = datetime.split(':')
+  return (+splitTime[0]) * 60 * 60 + (+splitTime[1]) * 60 + (+splitTime[2]);
+}
 
 function App() {
   const [restaurantData, setRestaurantData] = useState([])
@@ -39,6 +42,7 @@ function App() {
   const [alertTimeOut, setAlertTimeOut] = useState()
   const [showTomorrow, setShowTomorrow] = useState(false)
   const [newFilter, setNewFilter] = useState('')
+  const [trainLeaveTime, setTrainLeaveTime] = useState()
 
   const filterOnChange = (event) => {    
     setNewFilter(event.target.value)
@@ -46,7 +50,7 @@ function App() {
 
   useEffect (() => {
     setFilteredRestaurantData(restaurantData.filter(restaurant => restaurant.name.toLowerCase().includes(newFilter.toLowerCase())))
-    console.log("user",user)
+    //console.log("user",user)
   }, [restaurantData, newFilter])
     
   useEffect(() => {
@@ -66,6 +70,33 @@ function App() {
 
   }, [])
 
+  useEffect(() => {
+    if(alertTimeOut) clearTimeout(alertTimeOut)
+    if(!trainLeaveTime) return
+  const trackedTrain = foodTrain.find(train => train.participants.includes(user))
+  if (trackedTrain) {
+      const trackedTime = trackedTrain.time
+      setTrainLeaveTime(trackedTime)
+      //var trackedTimeInt = trackedTime
+      const alertTime = alertTimeSplit(trackedTime)-calculateSecondsCurrent(new Date())
+      //console.log("time", alertTime)
+
+      setAlertTimeOut(setTimeout(() => {
+        addNotification({
+        title: 'Jaahas',
+        subtitle: 'jotain',
+        message: 'Ruokailu at ' + trackedTrain.resta,
+        theme: 'darkblue',
+        tag: "Jaahas",
+        requireInteraction: true,
+        native: true // when using native, your OS will handle theming.
+    })
+    alert('Ruokailu at ' + trackedTrain.resta)
+    }, 
+    alertTime * 1000 - 180000))
+  }
+  }, [trainLeaveTime])
+
 const onTimeButtonClick = (time, restaurantName) => {
   foodTrain.some(foodTrainItem => foodTrainItem.resta === restaurantName && foodTrainItem.time === time) ?
     alert("Trat lunch train already exists")
@@ -77,6 +108,7 @@ const onTimeButtonClick = (time, restaurantName) => {
     .post('/reservations', {time: time, resta: restaurantName, participants: [user]})
     .then(response => {
         setFoodTrain(response.data)
+        setTrainLeaveTime(time)
       setCurrentlyOpenModal('')
     })
   .catch(err => {
@@ -84,48 +116,29 @@ const onTimeButtonClick = (time, restaurantName) => {
   })
 }
 
-const alertClick = () => { 
-  if(alertTimeOut) clearTimeout(alertTimeOut)
-  if (foodTrain.some(train => train.participants.includes(user)))
-  var trackedTrain = foodTrain.find(train => train.participants.includes(user))
-  var trackedTime = trackedTrain.time
-  //var trackedTimeInt = trackedTime
-  var alertTime = alertTimeSplit(trackedTime)-secondsCurrent
-  //console.log("time", alertTime)
-
-  setAlertTimeOut(setTimeout(() => {
-    addNotification({
-    title: 'Jaahas',
-    subtitle: 'jotain',
-    message: 'Ruokailu at ' + trackedTrain.resta,
-    theme: 'darkblue',
-    tag: "Jaahas",
-    requireInteraction: true,
-    native: true // when using native, your OS will handle theming.
-})
-alert("Syömään!")
-}, 
-alertTime * 1000 - 180000))
-
-  };
-
   return (
     <div className="App">
         {/*<img src={logo} className="App-logo" alt="logo" />*/}
         <h1 className="main-title">
           Jaahas
         </h1>
+          {/* oikealla */}
           <button className="show-tomorrow" disabled={isFriday} onClick={() => 
             setShowTomorrow(!showTomorrow)}>{showTomorrow?"today":"tomorrow"}</button>
+          {/* vasemmalla */}
             <p className="set-filter"><input onChange={filterOnChange} type="search"/>filter restaurants</p>
+          {/* keskellä */}
+          {trainLeaveTime ? <p className="alert-text">Alert will be shown 3 minutes before {trainLeaveTime}</p> : <p className="alert-text">no alert</p>}
         {/* renderöi nimen ja listan ruokajunista */}
       <SelectUserName user={user} setUser={setUser}/>
-      <FoodTrains user={user} foodTrain={foodTrain} setFoodTrain={setFoodTrain}/>
-      <div className="alert-button">
+      <FoodTrains user={user} foodTrain={foodTrain} setFoodTrain={setFoodTrain} 
+      setTrainLeaveTime={setTrainLeaveTime} 
+      alertTimeOut={alertTimeOut}/>
+      {/* <div className="alert-button">
           <button onClick={alertClick} className="button" disabled={!foodTrain.some(train => train.participants.includes(user))}>
            Alert
           </button>
-      </div>
+      </div> */}
       <Restaurants data={filteredRestaurantData} onSelectTimeClick={setCurrentlyOpenModal} onTimeButtonClick={onTimeButtonClick} 
       showTomorrow={showTomorrow} allowReservations={user.length>0} currentlyOpenModal={currentlyOpenModal} user={user}/>
     </div>

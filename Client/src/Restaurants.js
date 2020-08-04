@@ -1,9 +1,9 @@
 import React from 'react';
 import {alertTimeSplit} from "./App.js"
 
-const currentdate = new Date(); 
+const currentdate = new Date()
 const isFriday = currentdate.getDay()===5
-const hours = ["10", "11", "12", "13"]
+const hours = ["10", "11", "12", "13", "14", "15"]
 const minutes = ["00", "05", "10", "15", "20", "25", "30", "35", "40", "45", "50", "55"]
 const times = hours.map(hour => minutes.map(minute => hour + ":" + minute)).flat()
 var datetime =  currentdate.getHours() + ":" + currentdate.getMinutes() + ":" + currentdate.getSeconds()
@@ -27,7 +27,7 @@ const compareRestaurants=(restaurantA, restaurantB) => {
 }
 
 function Restaurants(props) {
-  console.log(props.allowReservations)
+  //console.log("getseconds", DateTime())
   return (
         <div className="restaurants-container">
         { props.data && props.data.sort(compareRestaurants).map(restaurant => 

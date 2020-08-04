@@ -27,7 +27,6 @@ const compareRestaurants=(restaurantA, restaurantB) => {
 }
 
 function Restaurants(props) {
-    console.log(props.data)
   return (
         <div className="restaurants-container">
         { props.data && props.data.sort(compareRestaurants).map(restaurant => 

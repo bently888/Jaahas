@@ -45,7 +45,7 @@ function App() {
   }
 
   useEffect (() => {
-    setFilteredRestaurantData(restaurantData.filter(restaurant => restaurant.name.toLowerCase().includes(newFilter)))
+    setFilteredRestaurantData(restaurantData.filter(restaurant => restaurant.name.toLowerCase().includes(newFilter.toLowerCase())))
   }, [restaurantData, newFilter])
     
   useEffect(() => {

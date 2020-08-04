@@ -27,7 +27,7 @@ const compareRestaurants=(restaurantA, restaurantB) => {
 }
 
 function Restaurants(props) {
-    console.log(props)
+    console.log(props.data)
   return (
         <div className="restaurants-container">
         { props.data && props.data.sort(compareRestaurants).map(restaurant => 
@@ -38,7 +38,7 @@ function Restaurants(props) {
           <div className="Menu" id="Menu">
             {restaurant.data && parseMenu(restaurant.data, props.showTomorrow).map(row => <p key={row.food}>{row.food} {row.price}</p>)}
           </div>
-          <button onClick={()=>props.onSelectTimeClick(restaurant.name)} disabled={!props.allowReservation}>Select Time</button>
+          <button onClick={()=>props.onSelectTimeClick(restaurant.name)} disabled={props.allowReservation}>Select Time</button>
           {props.currentlyOpenModal===restaurant.name && <div className="selectModal">
           <h2>Select Time</h2>
             <div className="time-buttons">

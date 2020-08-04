@@ -45,7 +45,7 @@ function App() {
   }
 
   useEffect (() => {
-    setFilteredRestaurantData(restaurantData.includes(newFilter))
+    setFilteredRestaurantData(restaurantData.filter(restaurant => restaurant.name.toLowerCase().includes(newFilter)))
   }, [restaurantData, newFilter])
     
   useEffect(() => {
@@ -90,7 +90,6 @@ const alertClick = () => {
   var trackedTime = trackedTrain.time
   //var trackedTimeInt = trackedTime
   var alertTime = alertTimeSplit(trackedTime)-secondsCurrent
-  console.log(restaurantData)
   //console.log("time", alertTime)
 
   setAlertTimeOut(setTimeout(() => {

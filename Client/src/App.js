@@ -46,6 +46,7 @@ function App() {
 
   useEffect (() => {
     setFilteredRestaurantData(restaurantData.filter(restaurant => restaurant.name.toLowerCase().includes(newFilter.toLowerCase())))
+    console.log("user",user)
   }, [restaurantData, newFilter])
     
   useEffect(() => {
@@ -116,7 +117,7 @@ alertTime * 1000 - 180000))
         </h1>
           <button className="show-tomorrow" disabled={isFriday} onClick={() => 
             setShowTomorrow(!showTomorrow)}>{showTomorrow?"today":"tomorrow"}</button>
-            <p className="set-filter"><input onChange={filterOnChange}/>filter restaurants</p>
+            <p className="set-filter"><input onChange={filterOnChange} type="search"/>filter restaurants</p>
         {/* renderöi nimen ja listan ruokajunista */}
       <SelectUserName user={user} setUser={setUser}/>
       <FoodTrains user={user} foodTrain={foodTrain} setFoodTrain={setFoodTrain}/>
@@ -126,7 +127,7 @@ alertTime * 1000 - 180000))
           </button>
       </div>
       <Restaurants data={filteredRestaurantData} onSelectTimeClick={setCurrentlyOpenModal} onTimeButtonClick={onTimeButtonClick} 
-      showTomorrow={showTomorrow} allowReservations={user.length>0} currentlyOpenModal={currentlyOpenModal}/>
+      showTomorrow={showTomorrow} allowReservations={user.length>0} currentlyOpenModal={currentlyOpenModal} user={user}/>
     </div>
   );
 }

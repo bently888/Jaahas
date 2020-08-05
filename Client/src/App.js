@@ -49,7 +49,10 @@ function App() {
   }
 
   useEffect (() => {
-    setFilteredRestaurantData(restaurantData.filter(restaurant => restaurant.name.toLowerCase().includes(newFilter.toLowerCase())))
+    setFilteredRestaurantData(
+      restaurantData.filter(restaurant => restaurant.name.toLowerCase().includes(newFilter.toLowerCase()))
+      //.filter(restaurant) filtteröi kaikki vanhat varaukset pois
+    )
     //console.log("user",user)
   }, [restaurantData, newFilter])
     
@@ -61,41 +64,56 @@ function App() {
       else
       setRestaurantData(oldState => ([...oldState, {name: restaurant.name, lunchUrl: restaurant.lunchUrl}]))
     })
-
-    axios.get('/reservations').then(
-      reservation => setFoodTrain(reservation.data)
-    ) 
     const savedUser = localStorage.getItem('userData')
+    axios.get('/reservations').then(
+      reservation => {
+        setFoodTrain(reservation.data)
+        const userTrain = reservation.data.find(train => train.participants.includes(savedUser))
+        if (userTrain)
+          setTrainLeaveTime(userTrain.time)
+      }
+      ) 
     setUser(savedUser || "");
-
+      
   }, [])
 
   useEffect(() => {
-    if(alertTimeOut) clearTimeout(alertTimeOut)
+    const userTrain = foodTrain.find(train => train.participants.includes(user))
+        if (userTrain)
+          setTrainLeaveTime(userTrain.time)
+        else
+          setTrainLeaveTime(null)
+  }, [user, foodTrain])
+
+  useEffect(() => {
     if(!trainLeaveTime) return
   const trackedTrain = foodTrain.find(train => train.participants.includes(user))
   if (trackedTrain) {
       const trackedTime = trackedTrain.time
-      setTrainLeaveTime(trackedTime)
-      //var trackedTimeInt = trackedTime
       const alertTime = alertTimeSplit(trackedTime)-calculateSecondsCurrent(new Date())
       //console.log("time", alertTime)
+    const notificationFunction = () => {
+      addNotification({
+      title: 'Jaahas',
+      subtitle: 'jotain',
+      message: 'Ruokailu at ' + trackedTrain.resta,
+      theme: 'darkblue',
+      tag: "Jaahas",
+      requireInteraction: true,
+      native: true // when using native, your OS will handle theming.
+      })
+      alert('Ruokailu at ' + trackedTrain.resta)
+    }
 
-      setAlertTimeOut(setTimeout(() => {
-        addNotification({
-        title: 'Jaahas',
-        subtitle: 'jotain',
-        message: 'Ruokailu at ' + trackedTrain.resta,
-        theme: 'darkblue',
-        tag: "Jaahas",
-        requireInteraction: true,
-        native: true // when using native, your OS will handle theming.
-    })
-    alert('Ruokailu at ' + trackedTrain.resta)
-    }, 
-    alertTime * 1000 - 180000))
+    if (!alertTimeOut || alertTimeOut.alertedTime!==alertTime)
+      setAlertTimeOut({
+        timeout: setTimeout(notificationFunction,alertTime * 1000 - 180000),
+        alertedTime:alertTime
+      })
   }
-  }, [trainLeaveTime])
+
+  return () => clearTimeout(alertTimeOut)
+  }, [trainLeaveTime, foodTrain, user, alertTimeOut])
 
 const onTimeButtonClick = (time, restaurantName) => {
   foodTrain.some(foodTrainItem => foodTrainItem.resta === restaurantName && foodTrainItem.time === time) ?
@@ -132,8 +150,7 @@ const onTimeButtonClick = (time, restaurantName) => {
         {/* renderöi nimen ja listan ruokajunista */}
       <SelectUserName user={user} setUser={setUser}/>
       <FoodTrains user={user} foodTrain={foodTrain} setFoodTrain={setFoodTrain} 
-      setTrainLeaveTime={setTrainLeaveTime} 
-      alertTimeOut={alertTimeOut}/>
+      setTrainLeaveTime={setTrainLeaveTime}/>
       {/* <div className="alert-button">
           <button onClick={alertClick} className="button" disabled={!foodTrain.some(train => train.participants.includes(user))}>
            Alert

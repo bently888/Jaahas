@@ -12,11 +12,12 @@ const joinTrain = (clickedItem, foodTrain, user, setFoodTrain, setTrainLeaveTime
       .then(response => {
         setFoodTrain(response.data) 
         foodTrain.some(train => train.participants.includes(user)) && setTrainLeaveTime(clickedItem.time)
+        setTrainLeaveTime(clickedItem.time)
       })
       //johtuuko siitä että food train ei ole vielä ehtinyt asettua?
   }
 
-  const deleteName = (user, foodTrain, setFoodTrain, setTrainLeaveTime, alertTimeOut) => {
+  const deleteName = (user, foodTrain, setFoodTrain, setTrainLeaveTime) => {
     if (foodTrain.some(train => train.participants.indexOf(user)>-1))
     //alert("Try to delete from train")
     var arr = foodTrain.find(train => train.participants.indexOf(user)>-1)
@@ -43,7 +44,7 @@ function FoodTrains(props) {
         }>
           join train</button>{res.participants.join(", ")}
         </p>) : ""}
-        <button onClick={() => deleteName(props.user, props.foodTrain, props.setFoodTrain, props.setTrainLeaveTime, props.alertTimeOut)} 
+        <button onClick={() => deleteName(props.user, props.foodTrain, props.setFoodTrain, props.setTrainLeaveTime)} 
         disabled={!props.foodTrain.some(train => train.participants.includes(props.user))}>delete</button>
     </div>
   );

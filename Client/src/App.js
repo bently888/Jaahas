@@ -95,7 +95,7 @@ function App() {
     }, 
     alertTime * 1000 - 180000))
   }
-  }, [trainLeaveTime])
+  }, [trainLeaveTime, alertTimeOut, foodTrain, user])
 
 const onTimeButtonClick = (time, restaurantName) => {
   foodTrain.some(foodTrainItem => foodTrainItem.resta === restaurantName && foodTrainItem.time === time) ?

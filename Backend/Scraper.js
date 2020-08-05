@@ -227,7 +227,7 @@ app.post('/delete', async function(req, res){
     if (restaurant === undefined) return
     const index =  restaurant.participants.indexOf(username);
     const newParticipants = restaurant.participants.slice(0, index)
-        .concat(restaurant.participants.slice(index+1, restaurant.participants.length-1))
+        .concat(restaurant.participants.slice(index+1, restaurant.participants.length))
     reservations = reservations.map(reservation => {
         if (reservation.participants.includes(username))
             return {time: reservation.time, resta: reservation.resta, participants: newParticipants}

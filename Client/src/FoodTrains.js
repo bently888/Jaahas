@@ -11,7 +11,7 @@ const joinTrain = (clickedItem, foodTrain, user, setFoodTrain, setTrainLeaveTime
       .post('/join', {time: clickedItem.time, resta: clickedItem.resta, user: user})
       .then(response => {
         setFoodTrain(response.data) 
-        setTrainLeaveTime(clickedItem.time)
+        foodTrain.some(train => train.participants.includes(user)) && setTrainLeaveTime(clickedItem.time)
       })
       //johtuuko siitä että food train ei ole vielä ehtinyt asettua?
   }
@@ -43,7 +43,8 @@ function FoodTrains(props) {
         }>
           join train</button>{res.participants.join(", ")}
         </p>) : ""}
-        <button onClick={() => deleteName(props.user, props.foodTrain, props.setFoodTrain, props.setTrainLeaveTime, props.alertTimeOut)} disabled={!props.foodTrain.some(train => train.participants.includes(props.user))}>delete</button>
+        <button onClick={() => deleteName(props.user, props.foodTrain, props.setFoodTrain, props.setTrainLeaveTime, props.alertTimeOut)} 
+        disabled={!props.foodTrain.some(train => train.participants.includes(props.user))}>delete</button>
     </div>
   );
 }

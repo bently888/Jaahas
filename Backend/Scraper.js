@@ -15,7 +15,16 @@ const nyt = () => {
 
 const calculateMinutesCurrent=(date) => {
     const datetime =  date.getHours() + ":" + date.getMinutes()
-    return datetime.split(':')}
+    var splitNow = datetime.split(':')
+    var secondsNow = (+splitNow[0]) * 60 * 60 + (+splitNow[1]) * 60;
+    return secondsNow
+}
+
+const calculateMinutesCustom=(timeFormat) => {
+    var splitNow = timeFormat.split(':')
+    var secondsNow = (+splitNow[0]) * 60 * 60 + (+splitNow[1]) * 60;
+    return secondsNow
+}
 
 const getTitleAndPrice = (row) => {
     const len = row.length
@@ -240,9 +249,11 @@ app.post('/delete', async function(req, res){
 app.post('/join', async function(req, res){
     const joinTime = req.body.time
     const joinRestaurant = req.body.resta
+    const indexOfOldTrain = reservations.indexOf(foodTrainItem => foodTrainItem.resta === joinRestaurant && foodTrainItem.time === joinTime)
     reservations = reservations.map(foodTrainItem => {
-        if (foodTrainItem.resta === joinRestaurant && foodTrainItem.time === joinTime && joinTime<calculateMinutesCurrent(new Date()))
-            return foodTrainItem//tämä kohta ei tee mitään?
+        if (foodTrainItem.resta === joinRestaurant && foodTrainItem.time === joinTime && 
+            calculateMinutesCustom(joinTime)<calculateMinutesCurrent(new Date()))
+            return (foodTrainItem)
         if (foodTrainItem.resta === joinRestaurant && foodTrainItem.time === joinTime)
           return {...foodTrainItem, participants: [...foodTrainItem.participants, req.body.user]}
         else 

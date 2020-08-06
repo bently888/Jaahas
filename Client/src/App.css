@@ -2,6 +2,7 @@
   text-align: center;
   background-color: gainsboro;
   min-height: 100vh;
+  font-family: Aleo;
   
 }
 
@@ -48,6 +49,8 @@
   text-align: center;
   margin: 0;
   padding: 60px;
+  text-shadow: 2px 2px 5px red;
+  font-weight: bold;
 }
 
 .restaurants-container {
@@ -71,5 +74,5 @@
   border: 5px solid black;
   border-radius: 5px;
   box-shadow: 3px 3px 5px 6px #222;
-  background-color: darkkhaki;
+  background-color: rgb(140, 158, 140)
 }

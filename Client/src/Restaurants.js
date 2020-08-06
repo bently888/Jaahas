@@ -3,7 +3,7 @@ import { alertTimeSplit } from "./App.js";
 
 const currentdate = new Date();
 const isFriday = currentdate.getDay() === 5;
-const hours = ["10", "11", "12"];
+const hours = ["10", "11", "12", "13", "14"];
 const testMinutes =  Array.from(Array(60).keys())
 const times = hours
   .map((hour) => testMinutes.map((minute) => hour + ":" + minute))
@@ -29,6 +29,9 @@ const parseMenu = (menuData, showTomorrow) => {
 };
 
 const compareRestaurants = (restaurantA, restaurantB) => {
+  if (!restaurantA.data && !restaurantB.data) return 0
+  if (!restaurantA.data && restaurantB.data) return 1
+  if (restaurantA.data && !restaurantB.data) return -1
   if (restaurantA.name > restaurantB.name) return 1;
   else return -1;
 };

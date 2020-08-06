@@ -172,51 +172,53 @@ const getFontanaMenu = async() => {
 }
 
 let tintacache = ""
-const getTintaMenu = async() => {
-    if (tintacache.timestamp && nyt() - tintacache.timestamp < 18000000) return tintacache.menu
-    const axiosResponse = await axios.get("https://tinta.fi/lounas")
-  
-      const $ = await cheerio.load(axiosResponse.data)
-      let menuItemTitles = []
-      $("h2").parent().find("p, h2")
-      .each((index, element) => menuItemTitles.push($(element).text().trim()))
-      let Weekday = ""
-      let menuWeekArrays = {
-          ma: [],
-          ti: [],
-          ke: [],
-          to: [],
-          pe: []
-          }
-    menuItemTitles.forEach(row => { 
-        if (row.length === 2) {
-              Weekday = row.toLowerCase()
-        } else if (Weekday !== "") {
-              menuWeekArrays[Weekday].push(row)
-          }
-      })
-      
-const Combine = (menuWeekArray) => {
-    
-      const arr = menuWeekArray.filter(menu => menu !== "")
+const getTintaMenu = async () => {
+  if (tintacache.timestamp && nyt() - tintacache.timestamp < 18000000)
+    return tintacache.menu;
+  const axiosResponse = await axios.get("https://tinta.fi/lounas");
 
-      let newWeekArray = []
-      for (let index = 0; index < arr.length; index += 2) {
-          const food = arr[index];
-          const price = arr[index+1];
-          const element = {food, price}
-        newWeekArray.push(element)
-      }
-      return newWeekArray
-}
-menuWeekArrays.ma = Combine(menuWeekArrays.ma)
-menuWeekArrays.ti = Combine(menuWeekArrays.ti)
-menuWeekArrays.ke = Combine(menuWeekArrays.ke)
-menuWeekArrays.to = Combine(menuWeekArrays.to)
-menuWeekArrays.pe = Combine(menuWeekArrays.pe)
-    tintacache = {menu: menuWeekArrays, timestamp: nyt()}
-    return menuWeekArrays
-}
+  const $ = await cheerio.load(axiosResponse.data);
+  let menuItemTitles = [];
+  $("h2")
+    .parent()
+    .find("p, h2")
+    .each((index, element) => menuItemTitles.push($(element).text().trim()));
+  let Weekday = "";
+  let menuWeekArrays = {
+    ma: [],
+    ti: [],
+    ke: [],
+    to: [],
+    pe: [],
+  };
+  menuItemTitles.forEach((row) => {
+    if (row.length === 2) {
+      Weekday = row.toLowerCase();
+    } else if (Weekday !== "") {
+      menuWeekArrays[Weekday].push(row);
+    }
+  });
+
+  const Combine = (menuWeekArray) => {
+    const arr = menuWeekArray.filter((menu) => menu !== "");
+
+    let newWeekArray = [];
+    for (let index = 0; index < arr.length; index += 2) {
+      const food = arr[index];
+      const price = arr[index + 1];
+      const element = { food, price };
+      newWeekArray.push(element);
+    }
+    return newWeekArray;
+  };
+  menuWeekArrays.ma = Combine(menuWeekArrays.ma);
+  menuWeekArrays.ti = Combine(menuWeekArrays.ti);
+  menuWeekArrays.ke = Combine(menuWeekArrays.ke);
+  menuWeekArrays.to = Combine(menuWeekArrays.to);
+  menuWeekArrays.pe = Combine(menuWeekArrays.pe);
+  tintacache = { menu: menuWeekArrays, timestamp: nyt() };
+  return menuWeekArrays;
+};
 app.get('/', (req, res) => {
     res.setHeader('Content-Type', 'text/html');
   })
@@ -228,24 +230,32 @@ app.post('/reservations', async function(req, res){
     reservations.push(req.body)
     res.send(reservations)
 })
-app.post('/delete', async function(req, res){
-    //jotenkin poista username
-    const username = req.body.user
-    const restaurant = reservations.find(reservation => reservation.participants.includes(username));
-    //console.log('here', req.body)
-    if (restaurant === undefined) return
-    const index =  restaurant.participants.indexOf(username);
-    const newParticipants = restaurant.participants.slice(0, index)
-        .concat(restaurant.participants.slice(index+1, restaurant.participants.length))
-    reservations = reservations.map(reservation => {
-        if (reservation.participants.includes(username))
-            return {time: reservation.time, resta: reservation.resta, participants: newParticipants}
-        else return reservation
-    }).filter(reservation => reservation.participants.length!==0)
-    
-    res.send(reservations)
+app.post("/delete", async function (req, res) {
+  const username = req.body.user;
+  const restaurant = reservations.find((reservation) =>
+    reservation.participants.includes(username)
+  );
+  if (restaurant === undefined) return;
+  const index = restaurant.participants.indexOf(username);
+  const newParticipants = restaurant.participants
+    .slice(0, index)
+    .concat(
+      restaurant.participants.slice(index + 1, restaurant.participants.length)
+    );
+  reservations = reservations
+    .map((reservation) => {
+      if (reservation.participants.includes(username))
+        return {
+          time: reservation.time,
+          resta: reservation.resta,
+          participants: newParticipants,
+        };
+      else return reservation;
+    })
+    .filter((reservation) => reservation.participants.length !== 0);
 
-})
+  res.send(reservations);
+});
 app.post('/join', async function(req, res){
     const joinTime = req.body.time
     const joinRestaurant = req.body.resta

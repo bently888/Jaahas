@@ -112,7 +112,7 @@ function App() {
   }, [user, foodTrain]);
 
   useEffect(() => {
-    if (!trainLeaveTime) return;
+    if (!trainLeaveTime || !user) return;
     const trackedTrain = foodTrain.find((train) =>
       train.participants.includes(user)
     );
@@ -140,7 +140,7 @@ function App() {
         });
     }
 
-    return () => clearTimeout(alertTimeOut);
+    return () => alertTimeOut && clearTimeout(alertTimeOut.timeout);
   }, [trainLeaveTime, foodTrain, user, alertTimeOut]);
 
   const onTimeButtonClick = (time, restaurantName) => {

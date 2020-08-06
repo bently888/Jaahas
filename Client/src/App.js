@@ -120,7 +120,6 @@ function App() {
       const trackedTime = trackedTrain.time;
       const alertTime =
         alertTimeSplit(trackedTime) - calculateSecondsCurrent(new Date());
-      //console.log("time", alertTime)
       const notificationFunction = () => {
         addNotification({
           title: "Jaahas",

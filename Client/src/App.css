@@ -24,7 +24,7 @@
 .selectModal {
   position: fixed;
     top: 10%;
-    bottom: 30%;
+    bottom: 20%;
     right: 10%;
     left: 10%;
   background-color: aquamarine;
@@ -36,7 +36,7 @@
   flex-wrap: wrap;
   justify-content: center;
   align-items: center;
-  height: 270px;
+  height: 350px;
   overflow-y: auto;
 }
 

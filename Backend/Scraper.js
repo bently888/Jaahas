@@ -220,8 +220,8 @@ const getTintaMenu = async () => {
   return menuWeekArrays;
 };
 app.get('/', (req, res) => {
-  if(req.protocol!=="https")
-    res.redirect("https://"+req.hostname)
+  // if(req.protocol!=="https")
+  //   res.redirect("https://"+req.hostname)
     res.setHeader('Content-Type', 'text/html');
   })
 

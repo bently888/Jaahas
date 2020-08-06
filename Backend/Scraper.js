@@ -220,8 +220,8 @@ const getTintaMenu = async () => {
   return menuWeekArrays;
 };
 app.get('/', (req, res) => {
-  if(req.headers['x-forwarded-proto']!='https')
-    res.redirect("https://jaahas.herokuapp.com")
+  if(req.protocol!=="https")
+    res.redirect("https://"+req.hostname)
     res.setHeader('Content-Type', 'text/html');
   })
 

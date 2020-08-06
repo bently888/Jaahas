@@ -4,7 +4,7 @@ import { alertTimeSplit } from "./App.js";
 const currentdate = new Date();
 const isFriday = currentdate.getDay() === 5;
 const hours = ["10", "11", "12", "13", "14"];
-const testMinutes =  Array.from(Array(60).keys())
+const testMinutes = Array.from(Array(60).keys());
 const times = hours
   .map((hour) => testMinutes.map((minute) => hour + ":" + minute))
   .flat();
@@ -29,9 +29,9 @@ const parseMenu = (menuData, showTomorrow) => {
 };
 
 const compareRestaurants = (restaurantA, restaurantB) => {
-  if (!restaurantA.data && !restaurantB.data) return 0
-  if (!restaurantA.data && restaurantB.data) return 1
-  if (restaurantA.data && !restaurantB.data) return -1
+  if (!restaurantA.data && !restaurantB.data) return 0;
+  if (!restaurantA.data && restaurantB.data) return 1;
+  if (restaurantA.data && !restaurantB.data) return -1;
   if (restaurantA.name > restaurantB.name) return 1;
   else return -1;
 };
@@ -49,12 +49,13 @@ function Restaurants(props) {
               </a>
             </h2>
             <div className="Menu" id="Menu">
-              {restaurant.data &&
-                parseMenu(restaurant.data, props.showTomorrow).map((row) => (
-                  <p key={row.food}>
-                    {row.food} {row.price}
-                  </p>
-                ))}
+              {restaurant.data
+                ? parseMenu(restaurant.data, props.showTomorrow).map((row) => (
+                    <p key={row.food}>
+                      {row.food} {row.price}
+                    </p>
+                  ))
+                : "no menu available"}
             </div>
             <button
               onClick={() => props.onSelectTimeClick(restaurant.name)}

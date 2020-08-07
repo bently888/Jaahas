@@ -57,7 +57,7 @@ function Restaurants(props) {
                   ))
                 : "no menu available"}
             </div>
-            <button
+            <button className="open-modal-button"
               onClick={() => props.onSelectTimeClick(restaurant.name)}
               disabled={!props.allowReservations}
             >

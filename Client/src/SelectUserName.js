@@ -3,7 +3,7 @@ import React from "react";
 function SelectUserName(props) {
   return (
     <div className="selectUserName">
-      <h3>Set Username</h3>
+      <h3 className="set-username-text">Set Username</h3>
       <div className="name-input">
         <input
           type="search"

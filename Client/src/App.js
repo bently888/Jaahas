@@ -192,7 +192,6 @@ function App() {
       ) : (
         <p className="alert-text">no alert</p>
       )}
-      {/* renderöi nimen ja listan ruokajunista */}
       <SelectUserName user={user} setUser={setUser} />
       <FoodTrains
         user={user}
@@ -200,11 +199,6 @@ function App() {
         setFoodTrain={setFoodTrain}
         setTrainLeaveTime={setTrainLeaveTime}
       />
-      {/* <div className="alert-button">
-          <button onClick={alertClick} className="button" disabled={!foodTrain.some(train => train.participants.includes(user))}>
-           Alert
-          </button>
-      </div> */}
       <Restaurants
         data={filteredRestaurantData}
         onSelectTimeClick={setCurrentlyOpenModal}

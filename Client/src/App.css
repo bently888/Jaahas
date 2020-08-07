@@ -49,8 +49,14 @@
   text-align: center;
   margin: 0;
   padding: 60px;
+  padding-bottom: 5px;
   text-shadow: 2px 2px 5px rgb(140, 158, 140);
   font-weight: bold;
+}
+
+.set-username-text {
+  margin: 0;
+  text-shadow: 2px 2px 5px rgb(140, 158, 140);
 }
 
 .restaurants-container {
@@ -75,4 +81,23 @@
   border-radius: 5px;
   box-shadow: 3px 3px 5px 6px #222;
   background-color: rgb(140, 158, 140)
+}
+
+.open-modal-button {
+  width: 75%;
+  margin-left: 13%;
+  border-radius: 12px;
+  transition-duration: 0.3s;
+  box-shadow: 0 9px #999;
+}
+
+.open-modal-button:hover {
+  background-color: #4CAF50; /* Green */
+  color: white;
+}
+
+.open-modal-button:active {
+  background-color: #4CAF50;
+  box-shadow: 0 5px #666;
+  transform: translateY(4px);
 }

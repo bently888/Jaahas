@@ -148,7 +148,7 @@ function App() {
       (foodTrainItem) =>
         foodTrainItem.resta === restaurantName && foodTrainItem.time === time
     )
-      ? alert("Trat lunch train already exists")
+      ? alert("That lunch train already exists")
       : foodTrain.some((train) => train.participants.indexOf(user) > -1)
       ? alert("You are already in another lunch train")
       : axios

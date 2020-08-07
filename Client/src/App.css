@@ -43,6 +43,7 @@
 
 .time-button {
   font-family: 'Rubik', sans-serif;
+  font-size: 20px;
 }
 
 .main-title {
@@ -89,6 +90,7 @@
   border-radius: 12px;
   transition-duration: 0.3s;
   box-shadow: 0 9px #999;
+  font-size: large;
 }
 
 .open-modal-button:hover {

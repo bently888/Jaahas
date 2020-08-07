@@ -3,8 +3,8 @@ import { alertTimeSplit } from "./App.js";
 
 const currentdate = new Date();
 const isFriday = currentdate.getDay() === 5;
-const hours = ["10", "11", "12", "13", "14"];
-const testMinutes = Array.from(Array(60).keys());
+const hours = ["10", "11", "12", "13"];
+const testMinutes = ["05", "10", "15", "20", "25", "30", "35", "40", "45", "50", "55"];
 const times = hours
   .map((hour) => testMinutes.map((minute) => hour + ":" + minute))
   .flat();
